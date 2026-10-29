@@ -56,8 +56,8 @@ img{max-width:100%}[hidden]{display:none!important}
   --shadow3:0 10px 30px rgba(0,0,0,.45),0 2px 6px rgba(0,0,0,.35);
   color-scheme:dark;
 }
-*{box-sizing:border-box}
-html,body{height:100%}
+*{box-sizing:border-box;touch-action:manipulation}
+html,body{height:100%;-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--surface);color:var(--on-surface);font:16px/24px var(--font);-webkit-font-smoothing:antialiased;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
@@ -94,11 +94,19 @@ p{margin:0}
 .card{position:relative;background:var(--surface-low);background:var(--glass);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
   border:1px solid var(--glass-line);border-radius:28px;box-shadow:var(--shadow1);padding:26px 22px 22px;display:flex;flex-direction:column;gap:20px;min-width:0;overflow:hidden}
 .card::before{content:"";position:absolute;inset:0 0 auto;height:4px;background:var(--grad);opacity:.9}
-.card.enter-next{animation:inNext .34s cubic-bezier(.2,0,0,1)}
-.card.enter-prev{animation:inPrev .34s cubic-bezier(.2,0,0,1)}
-@keyframes inNext{from{opacity:0;transform:translateX(28px)}}
-@keyframes inPrev{from{opacity:0;transform:translateX(-28px)}}
+.card.enter-next{animation:inNext .28s cubic-bezier(.2,0,0,1)}
+.card.enter-prev{animation:inPrev .28s cubic-bezier(.2,0,0,1)}
+@keyframes inNext{from{opacity:0;transform:translateY(10px)}}
+@keyframes inPrev{from{opacity:0;transform:translateY(-10px)}}
 .qhead{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.qmeta{display:flex;flex-direction:column;gap:2px;min-width:0}
+.qsaved{font:400 12px/16px var(--font);letter-spacing:.2px;color:var(--on-surface-variant);min-height:16px;transition:color .2s}
+.qsaved.ok{color:#2E8B57}
+.qsaved.wait{color:var(--blue)}
+.verify{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:14px;background:var(--secondary-container);color:var(--on-secondary-container);font:400 14px/20px var(--font)}
+.verify.ok{background:#DDF3E4;color:#0F3D23}
+.verify.bad{background:var(--error-container);color:var(--on-error-container)}
+.verify svg{flex:none;margin-top:1px}
 .overline{font:600 12px/16px var(--display);letter-spacing:.8px;text-transform:uppercase;color:var(--primary)}
 .qnum{font:700 44px/1 var(--display);letter-spacing:-.03em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;opacity:.55;font-variant-numeric:tabular-nums}
 .q{font:600 25px/1.3 var(--display);letter-spacing:-.01em;margin:0;text-wrap:balance}
@@ -261,7 +269,7 @@ p{margin:0}
 
   <section id="s-q" hidden>
     <div class="card" id="card">
-      <div class="qhead"><span class="overline" id="q-pos">Питання 1 з 88</span><span class="qnum" id="q-num">1</span></div>
+      <div class="qhead"><div class="qmeta"><span class="overline" id="q-pos">Питання 1 з 88</span><span class="qsaved" id="q-saved"></span></div><span class="qnum" id="q-num">1</span></div>
       <h2 class="q" id="q-text"></h2>
       <div class="proof" id="q-proof">
         <span class="ic"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></span>
@@ -293,11 +301,13 @@ p{margin:0}
       <div class="stat"><b id="st-done">0</b><span>відповідей</span></div>
       <div class="stat"><b id="st-left">0</b><span>без відповіді</span></div>
     </div>
-    <p class="lead" id="done-lead">Відповіді вже в таблиці. Якщо хочеш — скопіюй їх текстом або збережи файл.</p>
+    <div class="verify" id="verify"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg><span id="verify-text">Звіряю з таблицею…</span></div>
+    <p class="lead" id="done-lead">Якщо хочеш — скопіюй відповіді текстом або збережи файл.</p>
     <div class="stack">
       <button class="btn grad wide" id="to-left" type="button">До питань без відповіді</button>
       <button class="btn tonal wide has-icon" id="copy" type="button"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Скопіювати відповіді</button>
       <button class="btn outlined wide has-icon" id="dl" type="button"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>Завантажити файл</button>
+      <button class="btn wide" id="reverify" type="button">Звірити з таблицею ще раз</button>
       <button class="btn wide" id="back-q" type="button">Назад до питань</button>
       <button class="btn err wide" id="reset" type="button">Стерти все й почати заново</button>
     </div>
@@ -323,7 +333,7 @@ const $ = id => document.getElementById(id);
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 // ---------- state ----------
-let S = {answers:{}, choices:{}, skipped:{}, cur:1, started:false, name:"", id:""};
+let S = {answers:{}, choices:{}, skipped:{}, cur:1, started:false, name:"", id:"", acked:{}, ackedState:"", ackedName:""};
 const normName = v => {
   let k = String(v||"").trim().toLowerCase().replace(/^https?:\/\/(www\.)?instagram\.com\//, "").replace(/^@+/, "").replace(/[\/?#].*$/, "").replace(/\s+/g, "");
   const digits = k.replace(/\D/g, "");
@@ -400,8 +410,8 @@ function show(name){
   $("bottombar").hidden = name!=="q";
   if(name==="intro"){ const has = doneCount()>0 || S.cur>1; $("resume").hidden = !has; $("resume").textContent = has ? `Продовжити з питання ${S.cur}` : "Продовжити"; }
   if(name==="q") renderQ();
-  if(name==="done"){ renderDone(); confetti(); }
-  window.scrollTo({top:0});
+  if(name==="done"){ renderDone(); confetti(); verify(); }
+  toTop();
 }
 function renderQ(){
   const q = Q[S.cur-1];
@@ -413,6 +423,7 @@ function renderQ(){
   $("q-proof").hidden = !q.proof;
   $("q-proof-text").textContent = q.proof || "";
   renderOpts(q);
+  renderSavedMark();
   const ta = $("ans"); ta.value = S.answers[q.n] || ""; autogrow(ta);
   $("prev").disabled = false;
   const last = S.cur===N;
@@ -515,13 +526,14 @@ function renderOpts(q){
     host.appendChild(wrap);
   }
 }
+function toTop(){ if(document.activeElement && document.activeElement.blur) document.activeElement.blur(); if(window.scrollY > 0) window.scrollTo({top:0, behavior: reduced ? "auto" : "smooth"}); }
 function go(delta){
   stopRec(); if(dirty) sync();
   dir = delta;
   const j = S.cur + delta;
   if(j < 1){ show("intro"); return; }
   if(j > N){ show("done"); return; }
-  S.cur = j; S.started = true; renderQ(); window.scrollTo({top:0});
+  S.cur = j; S.started = true; renderQ(); toTop();
 }
 async function begin(resume){
   const name = $("name").value.trim();
@@ -586,37 +598,94 @@ $("dl").onclick = async () => {
   }catch(e){ snack("Тут не вийшло завантажити — скористайся «Скопіювати»."); }
 };
 $("to-left").onclick = () => { const q = Q.find(q => !answered(q.n)); if(q){ S.cur = q.n; dir = 1; show("q"); } };
+$("reverify").onclick = () => verify();
 $("back-q").onclick = () => { S.cur = N; dir = -1; show("q"); };
 let armed = false;
 $("reset").onclick = () => {
   if(!armed){ armed = true; $("reset").textContent = "Точно стерти? Натисни ще раз"; setTimeout(()=>{ armed = false; $("reset").textContent = "Стерти все й почати заново"; }, 4000); return; }
-  S = {answers:{}, choices:{}, skipped:{}, cur:1, started:false, name:"", id:""}; armed = false; $("name").value = ""; $("reset").textContent = "Стерти все й почати заново";
+  S = {answers:{}, choices:{}, skipped:{}, cur:1, started:false, name:"", id:"", acked:{}, ackedState:"", ackedName:""}; armed = false; $("name").value = ""; $("reset").textContent = "Стерти все й почати заново";
   S.id = newId(); $("start").disabled = true; save(); progress(); show("intro"); snack("Усе стерто.");
 };
 
 // ---------- sync to the Google Sheet ----------
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbzojMbPU_LGRD6alW8oIovJPZK_046sJm_bVQySkK_wbG4T0tiPrw4ODeq6u1DUyD1YHQ/exec";
-let dirty = false, syncT = null, sentHeader = false, inflight = null, seq = 0;
+let dirty = false, syncT = null, sentHeader = false, inflight = null, seq = 0, failures = 0;
 function setSaved(kind, t){ const el = $("saved-state"); el.className = "state " + kind; $("saved-text").textContent = t; }
-function queueSync(){ dirty = true; setSaved("saving", "зберігаю…"); clearTimeout(syncT); syncT = setTimeout(sync, 1500); }
-function payload(){
-  const answers = {};
-  Q.forEach(q => { const a = answerText(q.n).trim(); answers[q.n] = a || (S.skipped[q.n] ? "(не знаю)" : ""); });
-  const state = {}; Q.forEach(q => { if(q.type!=="text" && hasChoice(q.n)) state[q.n] = {c:S.choices[q.n], t:noteOf(q.n)}; });
-  const p = {id:S.id, name:S.name||"", total:N, seq:++seq, updated:new Date().toISOString(), answers, state:JSON.stringify(state)};
-  if(!sentHeader) p.questions = Q.map(q => ({n:q.n, q:q.q}));
-  return JSON.stringify(p);
+const sheetText = n => answerText(n).trim() || (S.skipped[n] ? "(не знаю)" : "");
+function stateJSON(){ const st = {}; Q.forEach(q => { if(q.type!=="text" && hasChoice(q.n)) st[q.n] = {c:S.choices[q.n], t:noteOf(q.n)}; }); return JSON.stringify(st); }
+function pending(){   // тільки те, що змінилось після останнього підтвердження
+  const items = {}, clear = [];
+  Q.forEach(q => { const t = sheetText(q.n), was = S.acked[q.n] || ""; if(t && t !== was) items[q.n] = t; else if(!t && was) clear.push(q.n); });
+  return {items, clear};
+}
+function renderSavedMark(){
+  const el = $("q-saved"); if(!el) return;
+  const t = sheetText(S.cur);
+  if(!t){ el.textContent = ""; el.className = "qsaved"; return; }
+  if((S.acked[S.cur]||"") === t){ el.textContent = "✓ у таблиці"; el.className = "qsaved ok"; }
+  else { el.textContent = "зберігаю в таблицю…"; el.className = "qsaved wait"; }
+}
+function queueSync(){ dirty = true; setSaved("saving", "зберігаю…"); renderSavedMark(); clearTimeout(syncT); syncT = setTimeout(sync, 1500); }
+function payloadFor(p, st, keep){
+  const body = {id:S.id, name:S.name||"", total:N, seq:++seq, updated:new Date().toISOString(), answers:p.items, clear:p.clear};
+  if(st !== S.ackedState) body.state = st;
+  if(!sentHeader) body.questions = Q.map(q => ({n:q.n, q:q.q}));
+  return JSON.stringify(body);
 }
 function sync(){
   if(!SHEET_URL || !S.id) return;
-  clearTimeout(syncT);
-  if(inflight){ dirty = true; return; }           // відправки йдуть по черзі, щоб стара не перекрила нову
+  clearTimeout(syncT); syncT = null;
+  if(inflight){ dirty = true; return; }           // відправки йдуть по черзі
+  const p = pending(), st = stateJSON();
+  const nothing = !Object.keys(p.items).length && !p.clear.length && st === S.ackedState && S.name === S.ackedName && sentHeader;
   dirty = false;
-  inflight = fetch(SHEET_URL, {method:"POST", mode:"no-cors", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:payload()})
-    .then(() => { sentHeader = true; setSaved("saved", "збережено в таблиці"); })
-    .catch(() => { setSaved("offline", "без інтернету — збережено тут"); dirty = true; clearTimeout(syncT); syncT = setTimeout(sync, 15000); })
-    .finally(() => { inflight = null; if(dirty) sync(); });
+  if(nothing){ setSaved("saved", "усе в таблиці"); renderSavedMark(); return; }
+  const body = payloadFor(p, st);
+  inflight = (async () => {
+    try{
+      const r = await fetch(SHEET_URL, {method:"POST", mode:"cors", headers:{"Content-Type":"text/plain;charset=utf-8"}, body});
+      const j = await r.json();
+      if(!(j && j.ok)) throw new Error(j && j.error || "no ok");
+      Object.assign(S.acked, p.items); p.clear.forEach(n => delete S.acked[n]);
+      S.ackedState = st; S.ackedName = S.name; sentHeader = true; failures = 0; save();
+      setSaved("saved", "збережено в таблиці"); renderSavedMark();
+    }catch(e){
+      failures++; dirty = true;
+      setSaved("offline", "не дійшло до таблиці — спробую ще раз");
+      clearTimeout(syncT); syncT = setTimeout(sync, Math.min(60000, 4000 * failures));
+    }finally{ inflight = null; if(dirty && failures === 0) sync(); }
+  })();
 }
+function flush(){  // остання спроба, коли сторінку закривають: маленька дельта
+  if(!SHEET_URL || !S.id) return;
+  const p = pending(); const st = stateJSON();
+  if(!Object.keys(p.items).length && !p.clear.length && st === S.ackedState) return;
+  try{ fetch(SHEET_URL, {method:"POST", mode:"no-cors", keepalive:true, headers:{"Content-Type":"text/plain;charset=utf-8"}, body:payloadFor(p, st)}); }catch(e){}
+}
+async function verify(){   // звірка: що реально лежить у таблиці
+  const box = $("verify"), txt = $("verify-text"); if(!box) return;
+  box.className = "verify"; txt.textContent = "Звіряю з таблицею…";
+  if(inflight){ try{ await inflight; }catch(e){} }
+  let d = null;
+  try{ const r = await fetch(SHEET_URL + "?id=" + encodeURIComponent(S.id), {mode:"cors"}); d = await r.json(); }catch(e){}
+  const want = Q.map(q => q.n).filter(n => sheetText(n));
+  if(!d || !d.found){
+    if(!want.length){ box.className = "verify"; txt.textContent = "Поки нема що звіряти — відповідей ще немає."; return; }
+    box.className = "verify bad"; txt.textContent = "Не вдалося дочитатись до таблиці. Відповіді збережені тут, у браузері; надішлю, щойно з’явиться зв’язок."; dirty = true; clearTimeout(syncT); syncT = setTimeout(sync, 3000); return;
+  }
+  const missing = [];
+  want.forEach(n => { const remote = String(d.answers && d.answers[n] || "").trim(); if(remote === sheetText(n)) S.acked[n] = remote; else missing.push(n); });
+  save();
+  if(!missing.length){ box.className = "verify ok"; txt.textContent = `Усе на місці: ${want.length} ${want.length===1 ? "відповідь" : want.length < 5 ? "відповіді" : "відповідей"} у таблиці, слово в слово.`; return; }
+  box.className = "verify"; txt.textContent = `${missing.length} ${missing.length===1 ? "відповідь ще не дійшла" : "відповіді ще не дійшли"} (№ ${missing.join(", ")}). Надсилаю ще раз…`;
+  missing.forEach(n => delete S.acked[n]); dirty = true; sync();
+  const t0 = Date.now(); while((inflight || dirty) && Date.now() - t0 < 20000){ await new Promise(r => setTimeout(r, 400)); }
+  let d2 = null; try{ const r = await fetch(SHEET_URL + "?id=" + encodeURIComponent(S.id), {mode:"cors"}); d2 = await r.json(); }catch(e){}
+  const still = want.filter(n => String(d2 && d2.answers && d2.answers[n] || "").trim() !== sheetText(n));
+  if(!still.length){ box.className = "verify ok"; txt.textContent = `Тепер усе на місці: ${want.length} у таблиці.`; }
+  else { box.className = "verify bad"; txt.textContent = `Не дійшли: № ${still.join(", ")}. Вони збережені тут — натисни «Звірити ще раз» за хвилину або скопіюй відповіді текстом.`; }
+}
+
 async function loadRemote(){   // підтягуємо відповіді цієї ж людини з таблиці (інший пристрій, інший браузер)
   if(!SHEET_URL || !S.id) return 0;
   let merged = 0;
@@ -634,10 +703,11 @@ async function loadRemote(){   // підтягуємо відповіді ціє
         if(q.type==="text"){ S.answers[n] = v; }
         else if(st[n] && st[n].c){ S.choices[n] = st[n].c; if(st[n].t) S.answers[n] = st[n].t; }
         else { S.answers[n] = v; }                           // вибір без стану — хоч текстом
-        delete S.skipped[n]; merged++;
+        delete S.skipped[n]; merged++; if(sheetText(n) === v) S.acked[n] = v;
       });
       if(!S.name && d.name) S.name = d.name;
-      save(); progress();
+      if(d.state) S.ackedState = S.ackedState || "";
+      sentHeader = true; save(); progress();
     }
   }catch(e){ /* нема інтернету або таблиця мовчить — працюємо з тим, що є тут */ }
   return merged;
