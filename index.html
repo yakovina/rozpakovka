@@ -418,73 +418,99 @@ $("reset").onclick = () => {
 
 // ---------- sync to the Google Sheet ----------
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbzojMbPU_LGRD6alW8oIovJPZK_046sJm_bVQySkK_wbG4T0tiPrw4ODeq6u1DUyD1YHQ/exec";
-let dirty = false, syncT = null, sentHeader = false;
+let dirty = false, syncT = null, sentHeader = false, inflight = null, seq = 0;
 function setSaved(kind, t){ const el = $("saved-state"); el.className = "state " + kind; $("saved-text").textContent = t; }
 function queueSync(){ dirty = true; setSaved("saving", "зберігаю…"); clearTimeout(syncT); syncT = setTimeout(sync, 1500); }
-async function sync(){
-  if(!SHEET_URL || !S.id) return;
-  clearTimeout(syncT); dirty = false;
+function payload(){
   const answers = {};
   Q.forEach(q => { const a = (S.answers[q.n]||"").trim(); answers[q.n] = a || (S.skipped[q.n] ? "(не знаю)" : ""); });
-  const payload = {id:S.id, name:S.name||"", total:N, answers};
-  if(!sentHeader) payload.questions = Q.map(q => ({n:q.n, q:q.q}));
-  try{
-    await fetch(SHEET_URL, {method:"POST", mode:"no-cors", keepalive:true, headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(payload)});
-    sentHeader = true; setSaved("saved", "збережено в таблиці");
-  }catch(e){ setSaved("offline", "без інтернету — збережено тут"); dirty = true; clearTimeout(syncT); syncT = setTimeout(sync, 15000); }
+  const p = {id:S.id, name:S.name||"", total:N, seq:++seq, updated:new Date().toISOString(), answers};
+  if(!sentHeader) p.questions = Q.map(q => ({n:q.n, q:q.q}));
+  return JSON.stringify(p);
+}
+function sync(){
+  if(!SHEET_URL || !S.id) return;
+  clearTimeout(syncT);
+  if(inflight){ dirty = true; return; }           // відправки йдуть по черзі, щоб стара не перекрила нову
+  dirty = false;
+  inflight = fetch(SHEET_URL, {method:"POST", mode:"no-cors", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:payload()})
+    .then(() => { sentHeader = true; setSaved("saved", "збережено в таблиці"); })
+    .catch(() => { setSaved("offline", "без інтернету — збережено тут"); dirty = true; clearTimeout(syncT); syncT = setTimeout(sync, 15000); })
+    .finally(() => { inflight = null; if(dirty) sync(); });
+}
+function flush(){  // остання відправка, коли сторінку закривають
+  if(!SHEET_URL || !S.id || !(dirty || inflight)) return;
+  try{ fetch(SHEET_URL, {method:"POST", mode:"no-cors", keepalive:true, headers:{"Content-Type":"text/plain;charset=utf-8"}, body:payload()}); dirty = false; }catch(e){}
 }
 
 // ---------- voice ----------
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent));
-let rec = null, recOn = false, committed = "", interim = "", lastFinal = "", lastFinalAt = 0, restartT = null;
+let rec = null, recOn = false, recQ = 0, committed = "", interim = "", lastFinal = "", lastFinalAt = 0, restartT = null, endT = null, silent = 0;
 const join = (a, b) => a ? (/\s$/.test(a) ? a + b : a + " " + b) : b;
 const MIC_PATH = '<path fill="currentColor" d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/>';
 const STOP_PATH = '<path fill="currentColor" d="M6 6h12v12H6z"/>';
 function hint(t){ $("mic-hint").textContent = t; }
-function renderDictation(){
-  const ta = $("ans");
-  ta.value = interim ? join(committed, interim) : committed;
-  S.answers[S.cur] = committed; if(committed.trim()) delete S.skipped[S.cur];
-  autogrow(ta); ta.scrollTop = ta.scrollHeight; save(); progress(); queueSync();
+function micUI(on){
+  $("mic").classList.toggle("on", on); $("mic-label").textContent = on ? "Зупинити" : "Надиктувати"; $("mic-ico").innerHTML = on ? STOP_PATH : MIC_PATH;
 }
+function renderDictation(){
+  // пишемо в те питання, для якого запис починався, навіть якщо людина вже перейшла далі
+  S.answers[recQ] = committed; if(committed.trim()) delete S.skipped[recQ];
+  if(S.cur===recQ){ const ta = $("ans"); ta.value = interim ? join(committed, interim) : committed; autogrow(ta); ta.scrollTop = ta.scrollHeight; }
+  save(); progress(); queueSync();
+}
+function finalize(){ if(interim){ committed = join(committed, interim); interim = ""; renderDictation(); } }
 function startRec(){
-  committed = $("ans").value; interim = ""; lastFinal = "";
-  try{
-    rec = new SR();
-    rec.lang = "uk-UA"; rec.interimResults = true; rec.maxAlternatives = 1;
-    rec.continuous = !isMobile;            // на телефонах безперервний режим дублює текст — слухаємо фразами і перезапускаємо
-    rec.onresult = e => {
-      let fin = "", inter = "";
-      for(let i = e.resultIndex; i < e.results.length; i++){ const r = e.results[i]; if(r.isFinal) fin += r[0].transcript; else inter += r[0].transcript; }
-      if(fin){
-        fin = fin.trim();
-        if(fin && !(fin===lastFinal && Date.now()-lastFinalAt < 4000)){ committed = join(committed, fin); lastFinal = fin; lastFinalAt = Date.now(); }
-        interim = "";
-      } else interim = inter;
-      renderDictation();
-    };
-    rec.onerror = e => {
-      if(e.error==="not-allowed" || e.error==="service-not-allowed"){ stopRec(); hint("Доступ до мікрофона закритий. Дозволь його в налаштуваннях сайту або натисни мікрофон на клавіатурі."); }
-      else if(e.error==="network"){ stopRec(); hint("Розпізнавання не з’єдналось. Спробуй ще раз або мікрофон на клавіатурі."); }
-      // no-speech / aborted: перезапуститься в onend
-    };
-    rec.onend = () => {
-      if(interim){ committed = join(committed, interim); interim = ""; renderDictation(); }
-      if(recOn){ clearTimeout(restartT); restartT = setTimeout(()=>{ try{ rec.start(); }catch(err){} }, 150); }
-    };
-    rec.start(); recOn = true;
-    $("mic").classList.add("on"); $("mic-label").textContent = "Зупинити"; $("mic-ico").innerHTML = STOP_PATH;
-    hint("Слухаю. Говори, текст з’являється в полі.");
-  }catch(err){ stopRec(); hint("Не вдалося увімкнути мікрофон. Натисни мікрофон на клавіатурі."); }
+  let r;
+  try{ r = new SR(); }catch(e){ hint("Не вдалося увімкнути мікрофон. Натисни мікрофон на клавіатурі."); return; }
+  if(rec){ finalize(); clearTimeout(endT); }     // попередній запис ще не закрився — доклеюємо його хвіст
+  rec = r; recQ = S.cur; committed = $("ans").value; interim = ""; lastFinal = ""; silent = 0;
+  r.lang = "uk-UA"; r.interimResults = true; r.maxAlternatives = 1;
+  r.continuous = !isMobile;            // на телефонах безперервний режим дублює текст — слухаємо фразами і перезапускаємо
+  r.onresult = e => {
+    if(rec!==r) return;
+    let fin = "", inter = "";
+    for(let i = e.resultIndex; i < e.results.length; i++){ const x = e.results[i]; if(x.isFinal) fin += x[0].transcript; else inter += x[0].transcript; }
+    if(fin){
+      fin = fin.trim(); silent = 0;
+      if(fin && !(fin===lastFinal && Date.now()-lastFinalAt < 4000)){ committed = join(committed, fin); lastFinal = fin; lastFinalAt = Date.now(); }
+      interim = "";
+    } else interim = inter;
+    renderDictation();
+  };
+  r.onerror = e => {
+    if(rec!==r) return;
+    if(e.error==="not-allowed" || e.error==="service-not-allowed"){ recOn = false; micUI(false); hint("Доступ до мікрофона закритий. Дозволь його в налаштуваннях сайту або натисни мікрофон на клавіатурі."); }
+    else if(e.error==="network"){ recOn = false; micUI(false); hint("Розпізнавання не з’єдналось. Спробуй ще раз або мікрофон на клавіатурі."); }
+    else if(e.error==="no-speech"){ silent++; if(silent >= 3){ recOn = false; micUI(false); hint("Не чую. Натисни «Надиктувати» ще раз, коли будеш готова."); } }
+    // aborted: ігноруємо, далі спрацює onend
+  };
+  r.onend = () => {
+    if(rec!==r) return;
+    finalize();                                   // усе, що лишилось проміжним, стає текстом
+    clearTimeout(endT);
+    if(recOn){
+      clearTimeout(restartT);
+      restartT = setTimeout(() => {
+        if(rec!==r || !recOn) return;
+        try{ r.start(); }catch(err){ recOn = false; rec = null; micUI(false); hint("Натисни «Надиктувати», щоб продовжити."); }
+      }, 150);
+    } else rec = null;
+  };
+  try{ r.start(); }catch(e){ rec = null; hint("Не вдалося увімкнути мікрофон. Натисни мікрофон на клавіатурі."); return; }
+  recOn = true; micUI(true); hint("Слухаю. Говори, текст з’являється в полі.");
 }
 function stopRec(){
   if(!recOn && !rec) return;
   recOn = false; clearTimeout(restartT);
-  if(rec){ try{ rec.onend = null; rec.onresult = null; rec.stop(); }catch(e){} rec = null; }
-  if(interim){ committed = join(committed, interim); interim = ""; renderDictation(); }
-  $("mic").classList.remove("on"); $("mic-label").textContent = "Надиктувати"; $("mic-ico").innerHTML = MIC_PATH;
-  hint(isMobile ? "або мікрофон на клавіатурі" : "");
+  micUI(false); hint(isMobile ? "або мікрофон на клавіатурі" : "");
+  const r = rec;
+  if(r){
+    try{ r.stop(); }catch(e){}                   // обробники лишаються: остання фраза часто приходить уже після stop()
+    clearTimeout(endT);
+    endT = setTimeout(() => { if(rec===r){ finalize(); rec = null; } }, 2500);
+  }
 }
 if(!SR){
   $("mic").hidden = true;
@@ -493,7 +519,7 @@ if(!SR){
   hint(isMobile ? "або мікрофон на клавіатурі" : "");
   $("mic").onclick = () => recOn ? stopRec() : startRec();
 }
-document.addEventListener("visibilitychange", () => { if(document.hidden) stopRec(); });
+document.addEventListener("visibilitychange", () => { if(document.hidden){ stopRec(); flush(); } });
 
 // ---------- boot ----------
 const newId = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
@@ -501,7 +527,7 @@ load(); progress();
 if(!S.id){ S.id = newId(); save(); }
 $("name").value = S.name || "";
 $("name").addEventListener("input", e => { S.name = e.target.value.trim(); save(); queueSync(); });
-window.addEventListener("pagehide", () => { if(dirty) sync(); });
+window.addEventListener("pagehide", flush);
 show(S.started ? "q" : "intro");
 </script>
 
