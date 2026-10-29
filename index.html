@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Розпаковка</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Literata:opsz,wght@7..72,400;7..72,500&display=swap">
+<style>
+img{max-width:100%}[hidden]{display:none!important}
+
+/* Layout: one column, 680px max; sticky top bar with progress + tabs; question card; sticky action bar below. */
+:root{
+  --bg:#F3F5F3; --surface:#FFFFFF; --fg:#1B1F1D; --muted:#5E6A65; --line:#D8DED9;
+  --accent:#1F6F5C; --accent-ink:#FFFFFF; --soft:#E4EFEA; --proof:#8A5A00; --proof-bg:#FBF3E3;
+  --danger:#A33B2B;
+  --font-ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --font-q:"Literata",Georgia,"Times New Roman",serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121614; --surface:#1B211E; --fg:#E8ECE9; --muted:#9AA79F; --line:#2C3531;
+    --accent:#5FC2A5; --accent-ink:#0F1A16; --soft:#1F3A32; --proof:#E0A458; --proof-bg:#2A2416;
+    --danger:#E07A66; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121614; --surface:#1B211E; --fg:#E8ECE9; --muted:#9AA79F; --line:#2C3531;
+  --accent:#5FC2A5; --accent-ink:#0F1A16; --soft:#1F3A32; --proof:#E0A458; --proof-bg:#2A2416;
+  --danger:#E07A66; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 var(--font-ui);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:14px;padding-block:12px 120px}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px 6px;display:flex;flex-direction:column;gap:8px}
+.brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.brand h1{font:500 18px/1.2 var(--font-q);margin:0;letter-spacing:.01em}
+.count{font-variant-numeric:tabular-nums;color:var(--muted);font-size:13px}
+.bar{height:4px;background:var(--line);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+.tabs{display:flex;gap:4px;overflow-x:auto}
+.tabs a{flex:1;text-align:center;padding:7px 8px;border-radius:8px;text-decoration:none;color:var(--muted);font-size:13px;font-weight:500;white-space:nowrap}
+.tabs a.on{background:var(--surface);color:var(--fg);box-shadow:0 1px 0 var(--line)}
+.filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+select,textarea,input[type=text]{font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%;min-width:0}
+select:focus,textarea:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+details.rules{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+details.rules summary{cursor:pointer;font-weight:500}
+details.rules ol{margin:8px 0 4px;padding-left:20px;color:var(--fg)}
+details.rules li{margin:4px 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 18px 16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.eyebrow{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.eyebrow b{color:var(--fg);font-weight:600;text-transform:none}
+.chip{display:inline-block;padding:2px 8px;border-radius:999px;background:var(--soft);color:var(--accent);font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:none}
+.q{font:400 21px/1.35 var(--font-q);margin:0;text-wrap:balance}
+.proof{background:var(--proof-bg);color:var(--fg);border-left:3px solid var(--proof);padding:8px 12px;border-radius:0 8px 8px 0;font-size:14px}
+.proof b{color:var(--proof);font-weight:600}
+textarea{min-height:120px;resize:vertical;line-height:1.5}
+.interim{min-height:20px;color:var(--muted);font-style:italic;font-size:14px}
+.voice{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.hint{font-size:13px;color:var(--muted)}
+button{font:inherit;font-weight:500;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:8px;padding:9px 14px;cursor:pointer;min-width:0}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+button.ghost{background:transparent}
+button.mic{border-color:var(--accent);color:var(--accent)}
+button.mic.on{background:var(--danger);border-color:var(--danger);color:#fff;animation:pulse 1.2s infinite}
+@keyframes pulse{50%{opacity:.75}}
+@media (prefers-reduced-motion: reduce){button.mic.on{animation:none}.bar i{transition:none}}
+button.danger{color:var(--danger);border-color:var(--danger)}
+button:disabled{opacity:.45;cursor:default}
+.actions{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--bg);border-top:1px solid var(--line);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-top:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))}
+.actions .in{max-width:680px;margin:0 auto;display:flex;gap:8px}
+.actions .in button{flex:1 1 0;padding:9px 6px;font-size:14px;white-space:nowrap}
+.actions .in #skip{flex:1.5 1 0}
+.actions .in button.primary{flex:1.3 1 0}
+.list{display:flex;flex-direction:column;gap:6px}
+.row{display:grid;grid-template-columns:34px 1fr auto;gap:8px;align-items:start;padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-radius:10px;cursor:pointer;min-width:0}
+.row .n{font-variant-numeric:tabular-nums;color:var(--muted)}
+.row .t{min-width:0}
+.row .t small{display:block;color:var(--muted);font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .st{font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.st.done{background:var(--soft);color:var(--accent)}
+.st.skip{background:var(--proof-bg);color:var(--proof)}
+.st.none{color:var(--muted);border:1px solid var(--line)}
+.blockhead{font:500 15px/1.3 var(--font-q);margin:10px 0 0;color:var(--muted)}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.pair{grid-template-columns:1fr}}
+.side{min-width:0;display:flex;flex-direction:column;gap:8px}
+.side h4{margin:0;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.ans{background:var(--bg);border-radius:8px;padding:8px 10px;font-size:14px;white-space:pre-wrap;word-break:break-word}
+.ans .qq{display:block;color:var(--muted);font-size:12px;margin-bottom:3px}
+.ans.empty{color:var(--muted);font-style:italic}
+.build{display:grid;grid-template-columns:1fr;gap:8px}
+.build .b{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.build .b b{display:block}
+.build .b span{color:var(--muted);font-size:13px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+pre.out{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;max-height:280px;overflow:auto;font-size:12px;white-space:pre-wrap;word-break:break-word;margin:0}
+.msg{font-size:13px;color:var(--accent);min-height:18px}
+.note{font-size:13px;color:var(--muted)}
+h2{font:500 20px/1.25 var(--font-q);margin:4px 0 0;text-wrap:balance}
+p{margin:0}
+label.file{display:inline-block}
+label.file input{display:none}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Розпаковка особистості та експертності</h1>
+      <span class="count" id="count">0 з 0</span>
+    </div>
+    <div class="bar"><i id="barfill"></i></div>
+    <nav class="tabs" id="tabs">
+      <a href="#one" data-v="one">Питання</a>
+      <a href="#list" data-v="list">Список</a>
+      <a href="#check" data-v="check">Перевірка</a>
+      <a href="#export" data-v="export">Експорт</a>
+    </nav>
+  </header>
+
+  <section id="view-one">
+    <details class="rules">
+      <summary>Правила, щоб не набрехати собі</summary>
+      <ol>
+        <li>Факти, а не оцінки. «Я відповідальна» — не відповідь. «За останні 3 місяці жодного зірваного дедлайну» — відповідь.</li>
+        <li>Кожна відповідь про себе — з прикладом за останні 1–3 місяці. Нема прикладу — пиши «нема прикладу». Це теж відповідь.</li>
+        <li>Жовтий блок «Доказ» каже, що прикласти або перевірити: скрін, повідомлення, цифру, дату. Де доказу нема — став «?» біля відповіді.</li>
+        <li>Пиши, як є зараз, а не як хочеш, щоб було. Для «як хочу» є окремі питання.</li>
+        <li>Де є список варіантів — вибирай один. «Все потроху» не рахується.</li>
+        <li>Одним словом, прикладом або «не знаю, далі» — нормально. «Не знаю» краще за гарну вигадку.</li>
+        <li>Можна надиктувати: кнопка «Надиктувати» або мікрофон на клавіатурі телефону.</li>
+        <li>Порядок: блок 3 (найлегший) → 2 → 1 → 4. Не за один раз, 2–3 підходи. Відповіді зберігаються в цьому браузері самі.</li>
+        <li>Після заповнення — вкладка «Перевірка», потім «Експорт», щоб скинути відповіді.</li>
+        <li>Архетип не питаємо — пройди тест <a href="https://www.ebaqdesign.com/archetypes-quiz" target="_blank" rel="noopener">ebaqdesign.com/archetypes-quiz</a> (3 хвилини) і запиши результат у питанні 88 або в експорті.</li>
+      </ol>
+    </details>
+
+    <div class="filters">
+      <select id="f-block" aria-label="Блок"></select>
+      <select id="f-status" aria-label="Статус">
+        <option value="all">Усі питання</option>
+        <option value="empty">Без відповіді</option>
+        <option value="done">З відповіддю</option>
+        <option value="skip">Пропущені</option>
+      </select>
+      <select id="f-sort" aria-label="Сортування">
+        <option value="n">За номером</option>
+        <option value="rubric">За рубрикою</option>
+        <option value="empty">Спочатку без відповіді</option>
+      </select>
+    </div>
+
+    <div class="card" id="card">
+      <div class="eyebrow"><b id="c-pos"></b><span id="c-block"></span><span id="c-rubric"></span></div>
+      <p class="q" id="c-q"></p>
+      <div class="proof" id="c-proof"><b>Доказ:</b> <span id="c-proof-text"></span></div>
+      <textarea id="c-ans" placeholder="Відповідь: факт, приклад, дата. Або «не знаю»."></textarea>
+      <div class="interim" id="interim"></div>
+      <div class="voice">
+        <button class="mic" id="mic" type="button">🎙 Надиктувати</button>
+        <span class="hint" id="mic-hint">або мікрофон на клавіатурі телефону</span>
+      </div>
+    </div>
+    <p class="note" id="empty-note" hidden>Під цей фільтр питань немає.</p>
+  </section>
+
+  <section id="view-list" hidden>
+    <h2>Усі питання</h2>
+    <p class="note">Натисни на питання, щоб відкрити його. Фільтр і сортування — ті самі, що на вкладці «Питання».</p>
+    <div class="list" id="list"></div>
+  </section>
+
+  <section id="view-check" hidden>
+    <h2>Перевірка на самообман</h2>
+    <p class="note">Поряд стоять пари відповідей. Подивись на обидві і чесно напиши, чи є розрив.</p>
+    <div class="list" id="checks"></div>
+    <h2>Що з цього ліпимо</h2>
+    <p class="note">Елементи сторінки і номери питань, з яких вони беруться.</p>
+    <div class="build" id="build"></div>
+  </section>
+
+  <section id="view-export" hidden>
+    <h2>Експорт і імпорт</h2>
+    <p class="note">Відповіді живуть тільки в цьому браузері. Щоб передати їх або продовжити на іншому пристрої — збережи файл.</p>
+    <div class="grid2">
+      <button type="button" id="ex-text">Скопіювати як текст</button>
+      <button type="button" id="ex-json">Скопіювати JSON</button>
+      <button type="button" id="dl-json">Завантажити JSON</button>
+      <button type="button" id="dl-csv">Завантажити CSV</button>
+    </div>
+    <div class="msg" id="ex-msg"></div>
+    <pre class="out" id="ex-out"></pre>
+    <div class="grid2">
+      <label class="file"><button type="button" id="im-btn">Імпортувати JSON</button><input type="file" id="im-file" accept=".json,application/json"></label>
+      <button type="button" class="danger" id="reset">Стерти всі відповіді</button>
+    </div>
+    <div class="msg" id="im-msg"></div>
+  </section>
+</div>
+
+<div class="actions" id="actions">
+  <div class="in">
+    <button type="button" id="prev">Назад</button>
+    <button type="button" class="ghost" id="skip">Не знаю, далі</button>
+    <button type="button" class="primary" id="next">Далі</button>
+  </div>
+</div>
+
+<script>
+const Q = [{"n": 1, "block": "1. Експертність", "rubric": "Професійний шлях", "q": "Як ти прийшла в цю роботу? Три-чотири речення, як розповіла б новій знайомій.", "proof": "", "tag": "актуальні"}, {"n": 2, "block": "1. Експертність", "rubric": "Професійний шлях", "q": "Що робила до цього? Перелічи всі роботи, навіть «не по темі».", "proof": "Роки й місця.", "tag": "історії"}, {"n": 3, "block": "1. Експертність", "rubric": "Професійний шлях", "q": "Який момент перевернув твій шлях: курс, звільнення, перший клієнт, переїзд? Коли це було?", "proof": "Дата або хоча б місяць і рік.", "tag": "історії"}, {"n": 4, "block": "1. Експертність", "rubric": "Професійний шлях", "q": "Найбільший провал у роботі. Що саме сталося і що ти після цього змінила?", "proof": "Одна конкретна річ, яку робиш інакше з того часу.", "tag": "історії"}, {"n": 5, "block": "1. Експертність", "rubric": "Продукт", "q": "Що ти продаєш зараз? Перепиши прайс як є: назва, ціна, що входить.", "proof": "Скрін прайсу або останній виставлений рахунок.", "tag": "актуальні"}, {"n": 6, "block": "1. Експертність", "rubric": "Продукт", "q": "Поясни головну послугу так, щоб зрозуміла мама або подруга з іншої сфери. Без «стратегії», «системи», «комплексно».", "proof": "", "tag": "шапка"}, {"n": 7, "block": "1. Експертність", "rubric": "Продукт", "q": "Закінчи: «Клієнт приходить, коли ___. Йде від мене, коли ___».", "proof": "По одному реальному прикладу на кожну половину.", "tag": "шапка"}, {"n": 8, "block": "1. Експертність", "rubric": "Продукт", "q": "Що ти береш на себе повністю, а що лишається на клієнті?", "proof": "Останній договір або переписка, де це обговорювали.", "tag": "актуальні"}, {"n": 9, "block": "1. Експертність", "rubric": "Продукт", "q": "Що ти кажеш, коли просять «гарантуйте результат»? Дослівно.", "proof": "Скрін, якщо є.", "tag": "тон"}, {"n": 10, "block": "1. Експертність", "rubric": "Хто твої клієнти", "q": "Останні три людини, які тобі написали. Хто вони: чим займаються, звідки прийшли?", "proof": "Дивись у переписку, не з пам’яті.", "tag": "шапка"}, {"n": 11, "block": "1. Експертність", "rubric": "Хто твої клієнти", "q": "Відкрий переписку з останнім новим клієнтом і скопіюй сюди його перше повідомлення.", "proof": "Сама відповідь і є доказ.", "tag": "шапка"}, {"n": 12, "block": "1. Експертність", "rubric": "Хто твої клієнти", "q": "Закінчи за клієнта: «Я вже не можу ___», «Мені соромно, що ___», «Я боюся, що ти ___».", "proof": "Тільки фрази, які клієнти казали насправді.", "tag": "шапка"}, {"n": 13, "block": "1. Експертність", "rubric": "Хто твої клієнти", "q": "Що клієнт розповідає про попереднього виконавця або про те, як робив сам?", "proof": "1–2 цитати з переписок.", "tag": "рубрики"}, {"n": 14, "block": "1. Експертність", "rubric": "Хто твої клієнти", "q": "З ким працювалось найкраще? Що в цих людях спільного?", "proof": "Конкретні люди або ніші, не «приємні адекватні».", "tag": "шапка"}, {"n": 15, "block": "1. Експертність", "rubric": "Хто твої клієнти", "q": "Хто точно не твій клієнт, навіть якщо платить? Кому ти вже відмовляла і чому?", "proof": "Якщо ні разу не відмовляла — так і пиши.", "tag": "межі"}, {"n": 16, "block": "1. Експертність", "rubric": "Хто твої клієнти", "q": "Яке питання тобі задають найчастіше?", "proof": "3 останні рази: хто і де спитав.", "tag": "рубрики"}, {"n": 17, "block": "1. Експертність", "rubric": "Відмінність", "q": "Що ти робиш не так, як більшість у своїй сфері?", "proof": "Відкрий 3 сторінки колег. Якщо те саме є в них — це не відмінність, шукай далі.", "tag": "шапка"}, {"n": 18, "block": "1. Експертність", "rubric": "Відмінність", "q": "Що тебе дратує в тому, як інші у твоїй сфері працюють або ведуть сторінки?", "proof": "Приклад за останній місяць.", "tag": "тон"}, {"n": 19, "block": "1. Експертність", "rubric": "Відмінність", "q": "Які слова чи обіцянки у твоїй сфері викликають у тебе недовіру?", "proof": "", "tag": "тон"}, {"n": 20, "block": "1. Експертність", "rubric": "Відмінність", "q": "Що ти знаєш або вмієш такого, чого не вміє твій клієнт?", "proof": "Те, за що тобі реально платили, а не що «могла б».", "tag": "шапка"}, {"n": 21, "block": "1. Експертність", "rubric": "Відмінність", "q": "Який біль клієнта ти розумієш краще за інших, бо сама через це пройшла?", "proof": "Коли і що саме було.", "tag": "історії"}, {"n": 22, "block": "1. Експертність", "rubric": "Свої напрацювання", "q": "Що в тебе вже є готового: гайд, чек-лист, шаблон, портфоліо, збережені сторіс з порадами?", "proof": "Посилання або файл.", "tag": "актуальні"}, {"n": 23, "block": "1. Експертність", "rubric": "Свої напрацювання", "q": "Є свій порядок роботи, який повторюється з клієнта на клієнта? Опиши по кроках.", "proof": "Чи робила саме так з останніми трьома клієнтами?", "tag": "актуальні"}, {"n": 24, "block": "1. Експертність", "rubric": "Свої напрацювання", "q": "Клієнт сказав «так». Що ти робиш у перший день? На першому тижні?", "proof": "За останнім клієнтом, як було насправді.", "tag": "актуальні"}, {"n": 25, "block": "1. Експертність", "rubric": "Досягнення", "q": "5–10 досягнень від найдавніших: навчання, сертифікати, перший великий клієнт, гарний відгук.", "proof": "Що можна показати: диплом, скрін, цифра.", "tag": "актуальні"}, {"n": 26, "block": "1. Експертність", "rubric": "Досягнення", "q": "Один кейс по одному реченню: хто прийшов, з чим, що зробила, що стало.", "proof": "Цифри «до/після» або слова клієнта.", "tag": "кейси"}, {"n": 27, "block": "1. Експертність", "rubric": "Досягнення", "q": "Скинь 3 відгуки або повідомлення з подякою. Випиши, за що саме дякують.", "proof": "Скріни.", "tag": "кейси"}, {"n": 28, "block": "1. Експертність", "rubric": "Досягнення", "q": "Що колеги просять у тебе показати або пояснити?", "proof": "Останній раз: хто і що.", "tag": "шапка"}, {"n": 29, "block": "1. Експертність", "rubric": "Місія", "q": "Чому ти цим займаєшся насправді? Не для анкети — для себе.", "proof": "Що ти зробила за останній місяць заради цього, крім роботи за гроші? Якщо нічого — це теж відповідь.", "tag": "тон"}, {"n": 30, "block": "1. Експертність", "rubric": "Місія", "q": "Яку зміну ти робиш у житті клієнта: що він перестає робити сам, про що перестає думати ввечері?", "proof": "Слова клієнта після роботи, не твої.", "tag": "шапка"}, {"n": 31, "block": "1. Експертність", "rubric": "Місія", "q": "Якби ти могла заборонити одну річ у своїй сфері — що?", "proof": "", "tag": "тон"}, {"n": 32, "block": "1. Експертність", "rubric": "Місія", "q": "За що ти найбільше любиш свою роботу?", "proof": "Останній раз, коли це відчула.", "tag": "тон"}, {"n": 33, "block": "1. Експертність", "rubric": "Професійні цілі", "q": "Чого хочеться більше — одне: нових клієнтів / дорожчих / щоб рекомендували / щоб писали «ви та сама, яка…»?", "proof": "Одне. Не «все».", "tag": "цілі"}, {"n": 34, "block": "1. Експертність", "rubric": "Професійні цілі", "q": "Скільки клієнтів зараз (число)? Скільки хочеш? Від скількох буде важко?", "proof": "Порахуй за останній місяць, не «приблизно».", "tag": "цілі"}, {"n": 35, "block": "1. Експертність", "rubric": "Професійні цілі", "q": "Що для тебе буде піком у цій роботі?", "proof": "", "tag": "цілі"}, {"n": 36, "block": "1. Експертність", "rubric": "Професійні цілі", "q": "Через рік: яка робота, які клієнти, скільки їх, скільки грошей. Опиши звичайний день.", "proof": "", "tag": "цілі"}, {"n": 37, "block": "1. Експертність", "rubric": "Базовий контент", "q": "Три теми, про які можеш говорити годину без підготовки.", "proof": "Про що ти вже говорила довго: з подругою, клієнтом, на ефірі.", "tag": "рубрики"}, {"n": 38, "block": "1. Експертність", "rubric": "Базовий контент", "q": "Що клієнти питають так часто, що ти б записала одне відео раз і назавжди?", "proof": "", "tag": "рубрики"}, {"n": 39, "block": "1. Експертність", "rubric": "Базовий контент", "q": "Які теми у своїй сфері ти уникаєш, хоча вони важливі? Чому?", "proof": "", "tag": "рубрики"}, {"n": 40, "block": "1. Експертність", "rubric": "Базовий контент", "q": "Що зараз болить людям у твоїй сфері — на що скаржаться в чатах і коментарях?", "proof": "2–3 цитати і де бачила.", "tag": "рубрики"}, {"n": 41, "block": "2. Особистість", "rubric": "Характер", "q": "Яку фразу тобі кажуть, коли ти робиш «як завжди»? «Ну ти як завжди ___».", "proof": "Хто казав і коли.", "tag": "тон"}, {"n": 42, "block": "2. Особистість", "rubric": "Характер", "q": "Який комплімент тобі роблять найчастіше? Який комплімент бісить?", "proof": "Останній раз.", "tag": "тон"}, {"n": 43, "block": "2. Особистість", "rubric": "Характер", "q": "Клієнт у паніці: «нічого не працює». Яка твоя перша фраза? Напиши як є.", "proof": "Знайди таку переписку і скопіюй.", "tag": "тон"}, {"n": 44, "block": "2. Особистість", "rubric": "Характер", "q": "Ти швидше «давай я зроблю» чи «дивись, робиться ось так, спробуй»?", "proof": "Як було з останнім клієнтом.", "tag": "архетип"}, {"n": 45, "block": "2. Особистість", "rubric": "Характер", "q": "Твоя робота — фільм. Ти там: рятуєш / вчиш / ламаєш правила / робиш красиво / розважаєш / наводиш порядок? Одне, можна два.", "proof": "", "tag": "архетип"}, {"n": 46, "block": "2. Особистість", "rubric": "Характер", "q": "Які риси характеру допомагають тобі в роботі? Які заважають?", "proof": "По одному випадку на кожну рису.", "tag": "тон"}, {"n": 47, "block": "2. Особистість", "rubric": "Характер", "q": "Що в тобі здивувало б людину, яка знає тебе тільки по роботі?", "proof": "", "tag": "історії"}, {"n": 48, "block": "2. Особистість", "rubric": "Характер", "q": "Скинь три свої останні повідомлення клієнту, будь-які. Це замість питання «як ти спілкуєшся».", "proof": "Сама відповідь і є доказ.", "tag": "тон"}, {"n": 49, "block": "2. Особистість", "rubric": "Гумор", "q": "Над чим ти смієшся в роботі? Останній раз, коли реально реготала з робочого.", "proof": "", "tag": "тон"}, {"n": 50, "block": "2. Особистість", "rubric": "Гумор", "q": "Жарти на сторінці — так / ні / тільки в сторіс? Над чим точно не жартуєш?", "proof": "", "tag": "межі"}, {"n": 51, "block": "2. Особистість", "rubric": "Впевненість", "q": "За яку частину роботи тобі легко назвати ціну? За яку хочеться сказати «та нічого не треба»?", "proof": "Останній раз, коли зробила знижку або безкоштовно — що це було.", "tag": "тон"}, {"n": 52, "block": "2. Особистість", "rubric": "Впевненість", "q": "Що з цього легко: писати / говорити на камеру / показувати екран / фоткати / відповідати в коментарях? Що ненавидиш?", "proof": "Що ти реально робила за останні 2 тижні.", "tag": "формати"}, {"n": 53, "block": "2. Особистість", "rubric": "Впевненість", "q": "Чого найбільше боїшся на сторінці: критики, що «не експертно», що побачать знайомі, тиші?", "proof": "", "tag": "межі"}, {"n": 54, "block": "2. Особистість", "rubric": "Минуле", "q": "Три історії з життя, які зробили тебе такою, як є. По два речення на кожну.", "proof": "", "tag": "історії"}, {"n": 55, "block": "2. Особистість", "rubric": "Минуле", "q": "Яка фраза батьків досі звучить у голові? Ти з нею згодна?", "proof": "", "tag": "історії"}, {"n": 56, "block": "2. Особистість", "rubric": "Минуле", "q": "Що ти вміла або любила в дитинстві і що з цього досі з тобою?", "proof": "", "tag": "історії"}, {"n": 57, "block": "2. Особистість", "rubric": "Цінності", "q": "Вибери п’ять: чесність, свобода, порядок, краса, гроші, спокій, визнання, розвиток, близькість, гумор, користь, стабільність, швидкість, сміливість, турбота. Тепер викресли дві.", "proof": "", "tag": "тон"}, {"n": 58, "block": "2. Особистість", "rubric": "Цінності", "q": "Для кожної з трьох, що лишились: чим ти за неї платила за останній рік — грошима, часом, сваркою, відмовою? Один випадок. Якщо нічим — викресли і візьми наступну зі списку.", "proof": "Випадок з датою. Цінність, за яку нічим не платила, — гасло, не цінність.", "tag": "тон"}, {"n": 59, "block": "2. Особистість", "rubric": "Цінності", "q": "Які правила ти не порушиш ні за які гроші?", "proof": "Коли це перевірялось насправді.", "tag": "межі"}, {"n": 60, "block": "2. Особистість", "rubric": "Цінності", "q": "Коли ти востаннє відмовилась від грошей або вигоди? Чому?", "proof": "Сума і дата.", "tag": "тон"}, {"n": 61, "block": "2. Особистість", "rubric": "Цінності", "q": "Що ти робиш добре, навіть коли ніхто не перевірить?", "proof": "", "tag": "тон"}, {"n": 62, "block": "2. Особистість", "rubric": "Цінності", "q": "На що тобі не шкода грошей — три речі. На що принципово не витрачаєш?", "proof": "Подивись виписку за місяць, не з пам’яті.", "tag": "тон"}, {"n": 63, "block": "2. Особистість", "rubric": "Цінності", "q": "Про кого ти кажеш «от молодець»? Що ця людина робить?", "proof": "", "tag": "тон"}, {"n": 64, "block": "2. Особистість", "rubric": "Цінності", "q": "Яку пораду ти найчастіше даєш подругам?", "proof": "", "tag": "рубрики"}, {"n": 65, "block": "2. Особистість", "rubric": "Цінності", "q": "Що з цінностей змінилось за останні роки — що стало важливішим?", "proof": "", "tag": "історії"}, {"n": 66, "block": "2. Особистість", "rubric": "Проти чого я", "q": "Три речі, які тебе бісять у людях. Не в роботі, взагалі.", "proof": "", "tag": "тон"}, {"n": 67, "block": "2. Особистість", "rubric": "Проти чого я", "q": "Останній раз, коли ти з кимось серйозно посперечалась — про що?", "proof": "", "tag": "тон"}, {"n": 68, "block": "2. Особистість", "rubric": "Проти чого я", "q": "Що ти вважаєш поганою роботою, навіть якщо клієнт задоволений?", "proof": "Приклад, можна чужий.", "tag": "тон"}, {"n": 69, "block": "2. Особистість", "rubric": "Проти чого я", "q": "Що ти простиш клієнту (запізнення, сумбур, правки), а за що попрощаєшся?", "proof": "З ким уже попрощалась і за що.", "tag": "межі"}, {"n": 70, "block": "2. Особистість", "rubric": "Сфери життя зараз", "q": "Які ролі в тебе є, крім роботи: мама, дружина, подруга, власниця кота, волонтерка? 3–5 штук.", "proof": "", "tag": "рубрики"}, {"n": 71, "block": "2. Особистість", "rubric": "Сфери життя зараз", "q": "На що йде вільний час, коли ніхто нічого не вимагає?", "proof": "Екранний час телефону і останні вихідні.", "tag": "рубрики"}, {"n": 72, "block": "2. Особистість", "rubric": "Сфери життя зараз", "q": "Що з цього готова показувати на сторінці, а що — ні?", "proof": "", "tag": "межі"}, {"n": 73, "block": "2. Особистість", "rubric": "Сфери життя зараз", "q": "Ставлення до грошей, своєї сфери, новин, саморозвитку — по одному реченню, тільки про те, що готова говорити вголос.", "proof": "", "tag": "тон"}, {"n": 74, "block": "2. Особистість", "rubric": "Естетика", "q": "Відкрий галерею в телефоні. Які три кольори там найчастіше? Що ти фоткаєш просто так?", "proof": "Галерея.", "tag": "візуал"}, {"n": 75, "block": "2. Особистість", "rubric": "Естетика", "q": "Три сторінки, на які ти підписана і реально дивишся. Одна річ, що подобається в кожній.", "proof": "За історією переглядів, не з пам’яті.", "tag": "візуал"}, {"n": 76, "block": "2. Особистість", "rubric": "Естетика", "q": "Три сторінки, які відписала або приглушила. Що дратувало?", "proof": "", "tag": "візуал"}, {"n": 77, "block": "2. Особистість", "rubric": "Естетика", "q": "Що лежить на твоєму робочому столі прямо зараз?", "proof": "Фото.", "tag": "візуал"}, {"n": 78, "block": "3. Стиль життя", "rubric": "Робоча атмосфера", "q": "Де і як ти працюєш: вдома, кав’ярня, офіс, з ноута на дивані? Що навколо?", "proof": "Фото.", "tag": "рубрики"}, {"n": 79, "block": "3. Стиль життя", "rubric": "Робоча атмосфера", "q": "Що в робочому дні тобі реально подобається, а що терпиш?", "proof": "", "tag": "рубрики"}, {"n": 80, "block": "3. Стиль життя", "rubric": "Графік", "q": "Опиши звичайний робочий день по годинах, коротко.", "proof": "Учорашній день, не «типовий».", "tag": "рубрики"}, {"n": 81, "block": "3. Стиль життя", "rubric": "Графік", "q": "Скільки годин за останні 4 тижні ти реально витратила на свою сторінку?", "proof": "Порахуй по постах і сторіс, які вийшли.", "tag": "цілі"}, {"n": 82, "block": "3. Стиль життя", "rubric": "Графік", "q": "Який день і година, коли ти реально можеш сісти за сторінку?", "proof": "Подивись календар на наступний тиждень.", "tag": "цілі"}, {"n": 83, "block": "3. Стиль життя", "rubric": "Оточення", "q": "Хто поруч дає енергію: люди, колеги, спільноти?", "proof": "", "tag": "рубрики"}, {"n": 84, "block": "3. Стиль життя", "rubric": "Оточення", "q": "Кого бракує для наступного кроку — ментора, партнерки, команди?", "proof": "", "tag": "цілі"}, {"n": 85, "block": "4. Сторінка", "rubric": "Сторінка", "q": "Відміть, чого на сторінці не буде: обличчя / голос / сім’я / дім / танці / курси / особисті історії / ціни.", "proof": "", "tag": "межі"}, {"n": 86, "block": "4. Сторінка", "rubric": "Сторінка", "q": "Людина зайшла на сторінку і за 5 секунд думає: «о, вона ___». Закінчи.", "proof": "Попроси 3 людей, які тебе не знають, подивитись сторінку і сказати одне слово. Збігається?", "tag": "шапка"}, {"n": 87, "block": "4. Сторінка", "rubric": "Сторінка", "q": "Через 3 місяці ти відкриваєш сторінку і кажеш «працює». Що ти там побачила — повідомлення, цифри, що саме? А через рік?", "proof": "", "tag": "цілі"}, {"n": 88, "block": "4. Сторінка", "rubric": "Сторінка", "q": "Після якого моменту в роботі ти думаєш «от, добре зробила»? Останній такий.", "proof": "Дата.", "tag": "тон"}];
+const TAG_LABEL = {"шапка":"шапка профілю","актуальні":"актуальні","рубрики":"рубрики","тон":"тон","візуал":"візуал","кейси":"кейси","межі":"межі","цілі":"цілі","історії":"історії","формати":"формати","архетип":"архетип"};
+const CHECKS = [
+  {t:"Кого хочу бачити клієнтом ↔ хто реально пише", a:[14], b:[10,11], m:"Якщо не збігається — шапку пишемо під тих, хто пише, або міняємо, де їх шукаємо. «Мрія» в шапці не продає."},
+  {t:"Моя відмінність ↔ шапки трьох колег", a:[17,20], b:[18,19,21], m:"Відкрий 3 сторінки колег. Якщо те саме стоїть у них — відмінності нема. Шукаємо її в тому, що дратує і через що пройшла сама."},
+  {t:"Цінності ↔ куди йдуть гроші й час", a:[57,58], b:[62,71], m:"Цінність, за яку не платила грошима, часом або сваркою, — гасло. На сторінку беремо тільки оплачені."},
+  {t:"«Я роблю не як усі» ↔ останні 9 постів", a:[17,18], b:[], m:"Відкрий свою сторінку. Якщо в постах цього не видно — відмінність є, але її ніхто не бачить. Це перше завдання для контенту."},
+  {t:"Скільки годин «можу» ↔ скільки було за 4 тижні", a:[82], b:[81], m:"План контенту робимо від другого числа, не від першого."},
+  {t:"Місія ↔ що зробила для неї за місяць", a:[29,30], b:[], m:"Подивись на доказ до 29. Якщо за місяць нічого — місія поки не тема для сторінки."},
+  {t:"Характер моїми словами ↔ що кажуть інші", a:[46], b:[41,42,27,48], m:"Тон сторінки беремо з того, що кажуть інші і як ти реально пишеш у повідомленнях."},
+  {t:"Клієнт «до/після» моїми словами ↔ слова з відгуків", a:[30], b:[27], m:"У шапку і кейси йдуть слова клієнтів. Нема відгуків — перше завдання: зібрати 3."},
+  {t:"Одне слово про сторінку ↔ слова трьох сторонніх", a:[86], b:[], m:"Попроси трьох людей, які тебе не знають, сказати одне слово про сторінку. Якщо слова різні — сторінка поки не каже того, що ти хочеш."}
+];
+const BUILD = [
+  ["Хто я — один рядок у шапці","6, 20","Роль простими словами + за що реально платять."],
+  ["Для кого","10–14, після перевірки 1","Ті, хто реально пише. Їхніми словами з 11 і 12."],
+  ["Що отримує клієнт","7, 30, після перевірки 8","Що перестає робити або про що перестає думати. Словами клієнтів."],
+  ["Чому я (відмінність)","17–21, після перевірки 2","Одна річ, якої нема в колег."],
+  ["Соцдоказ у шапці","25, 26, 27","Одна цифра або факт, який можна показати."],
+  ["Заклик — що зробити першим","5, 22","Одна дія: написати, забрати гайд, подивитись кейси."],
+  ["Архетип і 3 слова тону","тест + 41–48, після перевірки 7","Результат тесту + три слова, якими тебе описують інші."],
+  ["3 цінності, що пройшли перевірку","57, 58, після перевірки 3","Тільки ті, за які платила. Теми для постів-позицій."],
+  ["Чого на сторінці не буде","15, 50, 53, 72, 85","Список, який не обговорюємо."],
+  ["Рубрики (5–7)","експертні: 16, 37–40 · кейси: 26, 27 · позиція: 66–69 · особисте: 70–73, 78, 79 · історії: 3, 4, 54–56","Кожна рубрика — з конкретних відповідей."],
+  ["Актуальні","Про мене: 1–3 · Послуги: 5–8 · Кейси й відгуки: 25–27 · Корисне: 22 · Часті питання: 16, 38","П’ять кружечків, кожен з готового матеріалу."],
+  ["Візуал","74–77","Кольори з галереї, предмети зі столу, місця, де працює."],
+  ["Формати: що знімаємо, що ні","52, 85","Тільки те, що робила за останні 2 тижні, плюс одне нове на пробу."],
+  ["Скільки контенту реально на тиждень","81, 82, після перевірки 5","Число з минулих 4 тижнів. План — від нього."]
+];
+const KEY = "rozpakovka.v1";
+const byN = {}; Q.forEach(q => byN[q.n] = q);
+
+// ---------- state ----------
+let S = {answers:{}, skipped:{}, checks:{}, cur:1, f:{block:"", tag:"", status:"all", sort:"n"}};
+function load(){ try{ const raw = localStorage.getItem(KEY); if(raw){ const o = JSON.parse(raw); if(o && typeof o==="object"){ S = Object.assign(S, o); S.f = Object.assign({block:"",status:"all",sort:"n"}, o.f||{}); if(S.f.sort==="tag") S.f.sort="n"; } } }catch(e){} }
+let saveT = null;
+function save(){ clearTimeout(saveT); saveT = setTimeout(()=>{ try{ S.updated = new Date().toISOString(); localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }, 250); }
+function answered(n){ return (S.answers[n]||"").trim().length > 0; }
+function status(n){ return answered(n) ? "done" : (S.skipped[n] ? "skip" : "none"); }
+
+// ---------- order (filter + sort) ----------
+function order(){
+  let arr = Q.filter(q => !S.f.block || q.block===S.f.block);
+  if(S.f.status==="empty") arr = arr.filter(q => !answered(q.n));
+  if(S.f.status==="done") arr = arr.filter(q => answered(q.n));
+  if(S.f.status==="skip") arr = arr.filter(q => S.skipped[q.n] && !answered(q.n));
+  const s = S.f.sort;
+  if(s==="rubric") arr.sort((a,b)=> a.rubric.localeCompare(b.rubric,"uk") || a.n-b.n);
+  else if(s==="empty") arr.sort((a,b)=> (answered(a.n)-answered(b.n)) || a.n-b.n);
+  else arr.sort((a,b)=>a.n-b.n);
+  return arr.map(q=>q.n);
+}
+
+// ---------- helpers ----------
+const $ = id => document.getElementById(id);
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function autogrow(t){ t.style.height="auto"; t.style.height = Math.max(120, t.scrollHeight+2) + "px"; }
+function fillSelect(sel, items, allLabel, map){
+  sel.innerHTML = `<option value="">${allLabel}</option>` + items.map(v=>`<option value="${esc(v)}">${esc(map?map(v):v)}</option>`).join("");
+}
+function progress(){
+  const done = Q.filter(q=>answered(q.n)).length;
+  $("count").textContent = `${done} з ${Q.length}`;
+  $("barfill").style.width = (100*done/Q.length) + "%";
+}
+
+// ---------- view: one ----------
+let ord = [];
+function currentPos(){ let i = ord.indexOf(S.cur); return i<0 ? 0 : i; }
+function renderOne(){
+  ord = order();
+  const note = $("empty-note"), card = $("card");
+  if(!ord.length){ card.hidden = true; note.hidden = false; $("prev").disabled = $("next").disabled = $("skip").disabled = true; return; }
+  card.hidden = false; note.hidden = true;
+  if(!ord.includes(S.cur)) S.cur = ord[0];
+  const i = currentPos(), q = byN[S.cur];
+  $("c-pos").textContent = `${i+1} з ${ord.length} · №${q.n}`;
+  $("c-block").textContent = q.block;
+  $("c-rubric").textContent = q.rubric;
+  $("c-q").textContent = q.q;
+  $("c-proof").hidden = !q.proof;
+  $("c-proof-text").textContent = q.proof || "";
+  const ta = $("c-ans");
+  ta.value = S.answers[q.n] || "";
+  autogrow(ta);
+  $("interim").textContent = "";
+  $("prev").disabled = i===0;
+  $("next").textContent = i===ord.length-1 ? "Готово" : "Далі";
+  $("next").disabled = false; $("skip").disabled = false;
+  save();
+}
+function go(delta){
+  stopRec();
+  const i = currentPos();
+  const j = i + delta;
+  if(j < 0) return;
+  if(j >= ord.length){ location.hash = "#check"; return; }
+  S.cur = ord[j]; renderOne();
+  window.scrollTo({top:0});
+}
+$("prev").onclick = ()=>go(-1);
+$("next").onclick = ()=>go(1);
+$("skip").onclick = ()=>{ if(!answered(S.cur)) S.skipped[S.cur] = true; save(); progress(); go(1); };
+$("c-ans").addEventListener("input", e => { S.answers[S.cur] = e.target.value; if(e.target.value.trim()) delete S.skipped[S.cur]; autogrow(e.target); save(); progress(); });
+
+["f-block","f-status","f-sort"].forEach(id => $(id).addEventListener("change", e => {
+  S.f[{"f-block":"block","f-status":"status","f-sort":"sort"}[id]] = e.target.value; save();
+  stopRec(); renderOne(); if(view==="list") renderList();
+}));
+
+// ---------- voice ----------
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null, recOn = false, finalBuf = "";
+function setHint(t){ $("mic-hint").textContent = t; }
+function startRec(){
+  if(!SR){ setHint("Цей браузер не вміє розпізнавати мову. Натисни мікрофон на клавіатурі телефону (Chrome і Safari вміють)."); return; }
+  try{
+    rec = new SR(); rec.lang = "uk-UA"; rec.continuous = true; rec.interimResults = true;
+    rec.onresult = e => {
+      let interim = "", fin = "";
+      for(let i = e.resultIndex; i < e.results.length; i++){
+        const r = e.results[i];
+        if(r.isFinal) fin += r[0].transcript; else interim += r[0].transcript;
+      }
+      if(fin){
+        const ta = $("c-ans");
+        const sep = ta.value && !/\s$/.test(ta.value) ? " " : "";
+        ta.value += sep + fin.trim();
+        S.answers[S.cur] = ta.value; delete S.skipped[S.cur]; autogrow(ta); save(); progress();
+      }
+      $("interim").textContent = interim ? "…" + interim : "";
+    };
+    rec.onerror = e => {
+      if(e.error==="not-allowed" || e.error==="service-not-allowed"){ setHint("Мікрофон тут недоступний. Натисни мікрофон на клавіатурі телефону — це працює в будь-якому полі."); stopRec(); }
+      else if(e.error==="no-speech"){ /* keep listening */ }
+      else { setHint("Не вийшло розпізнати (" + e.error + "). Спробуй ще раз або мікрофон на клавіатурі."); stopRec(); }
+    };
+    rec.onend = () => { if(recOn){ try{ rec.start(); }catch(err){} } };
+    rec.start(); recOn = true;
+    $("mic").classList.add("on"); $("mic").textContent = "■ Зупинити"; setHint("Слухаю… говори, текст з’явиться в полі.");
+  }catch(err){ setHint("Не вдалося увімкнути мікрофон. Натисни мікрофон на клавіатурі."); stopRec(); }
+}
+function stopRec(){
+  recOn = false;
+  if(rec){ try{ rec.onend = null; rec.stop(); }catch(e){} rec = null; }
+  $("mic").classList.remove("on"); $("mic").textContent = "🎙 Надиктувати"; $("interim").textContent = "";
+}
+$("mic").onclick = () => recOn ? (stopRec(), setHint("або мікрофон на клавіатурі телефону")) : startRec();
+
+// ---------- view: list ----------
+function renderList(){
+  const o = order(); const host = $("list"); let html = "", lastBlock = "";
+  if(!o.length){ host.innerHTML = '<p class="note">Під цей фільтр питань немає.</p>'; return; }
+  for(const n of o){
+    const q = byN[n];
+    if(S.f.sort==="n" && q.block!==lastBlock){ html += `<p class="blockhead">${esc(q.block)}</p>`; lastBlock = q.block; }
+    const st = status(n);
+    const stText = st==="done" ? "є відповідь" : st==="skip" ? "пропущено" : "—";
+    const preview = (S.answers[n]||"").trim().replace(/\s+/g," ");
+    html += `<div class="row" data-n="${n}" role="button" tabindex="0">
+      <span class="n">${n}</span>
+      <span class="t">${esc(q.q)}<small>${esc(q.rubric)}${preview ? " · " + esc(preview.slice(0,80)) : ""}</small></span>
+      <span class="st ${st}">${stText}</span></div>`;
+  }
+  host.innerHTML = html;
+  host.querySelectorAll(".row").forEach(el => {
+    const open = () => { S.cur = +el.dataset.n; save(); location.hash = "#one"; };
+    el.onclick = open; el.onkeydown = e => { if(e.key==="Enter"||e.key===" "){ e.preventDefault(); open(); } };
+  });
+}
+
+// ---------- view: check ----------
+function ansBlock(n){
+  const q = byN[n], a = (S.answers[n]||"").trim();
+  return `<div class="ans ${a?"":"empty"}"><span class="qq">№${n}. ${esc(q.q)}</span>${a ? esc(a) : "немає відповіді"}</div>`;
+}
+function renderCheck(){
+  $("checks").innerHTML = CHECKS.map((c,i) => `
+    <div class="card">
+      <div class="eyebrow"><b>Перевірка ${i+1}</b></div>
+      <h2>${esc(c.t)}</h2>
+      <div class="pair">
+        <div class="side"><h4>Моїми словами</h4>${c.a.map(ansBlock).join("")}</div>
+        <div class="side"><h4>Факти</h4>${c.b.length ? c.b.map(ansBlock).join("") : `<div class="ans empty">${esc(c.m)}</div>`}</div>
+      </div>
+      <div class="proof"><b>Що це показує:</b> ${esc(c.m)}</div>
+      <textarea id="chk-${i}" placeholder="Є розрив? Який?">${esc(S.checks[i]||"")}</textarea>
+    </div>`).join("");
+  CHECKS.forEach((c,i) => { const t = $("chk-"+i); autogrow(t); t.addEventListener("input", e => { S.checks[i] = e.target.value; autogrow(e.target); save(); }); });
+  $("build").innerHTML = BUILD.map(b => `<div class="b"><b>${esc(b[0])}</b><span>Питання: ${esc(b[1])}</span><br><span>${esc(b[2])}</span></div>`).join("");
+}
+
+// ---------- export / import ----------
+function exportJSON(){
+  return JSON.stringify({
+    exported: new Date().toISOString(),
+    questions: Q.map(q => ({n:q.n, block:q.block, rubric:q.rubric, question:q.q, proof:q.proof, purpose:q.tag, answer:S.answers[q.n]||"", skipped:!!S.skipped[q.n] && !answered(q.n)})),
+    checks: CHECKS.map((c,i) => ({n:i+1, title:c.t, gap:S.checks[i]||""}))
+  }, null, 2);
+}
+function csvCell(v){ v = String(v==null?"":v); return /[",\n;]/.test(v) ? '"' + v.replace(/"/g,'""') + '"' : v; }
+function exportCSV(){
+  const rows = [["№","Блок","Рубрика","Питання","Доказ","Для чого","Відповідь","Пропущено"]];
+  Q.forEach(q => rows.push([q.n,q.block,q.rubric,q.q,q.proof,q.tag,S.answers[q.n]||"",(S.skipped[q.n]&&!answered(q.n))?"так":""]));
+  rows.push([]); rows.push(["Перевірка","","","Пара","","","Є розрив?",""]);
+  CHECKS.forEach((c,i) => rows.push([i+1,"","",c.t,"","",S.checks[i]||"",""]));
+  return "﻿" + rows.map(r => r.map(csvCell).join(",")).join("\n");
+}
+function exportText(){
+  let out = "РОЗПАКОВКА — відповіді (" + new Date().toLocaleDateString("uk-UA") + ")\n", lastBlock = "", lastRubric = "";
+  Q.forEach(q => {
+    if(q.block!==lastBlock){ out += "\n\n=== " + q.block + " ===\n"; lastBlock = q.block; lastRubric=""; }
+    if(q.rubric!==lastRubric){ out += "\n[" + q.rubric + "]\n"; lastRubric = q.rubric; }
+    const a = (S.answers[q.n]||"").trim();
+    out += `\n${q.n}. ${q.q}\n— ${a ? a : (S.skipped[q.n] ? "(пропущено)" : "(без відповіді)")}\n`;
+  });
+  out += "\n\n=== Перевірка ===\n";
+  CHECKS.forEach((c,i) => out += `\n${i+1}. ${c.t}\n— ${(S.checks[i]||"").trim() || "(не заповнено)"}\n`);
+  return out;
+}
+async function copyText(text, msgEl){
+  try{ await navigator.clipboard.writeText(text); msgEl.textContent = "Скопійовано. Встав у чат або в файл."; }
+  catch(e){ const out = $("ex-out"); out.textContent = text; const r = document.createRange(); r.selectNodeContents(out); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); msgEl.textContent = "Текст виділено нижче — скопіюй вручну."; }
+}
+async function download(filename, data, type){
+  const msg = $("ex-msg");
+  if(window.claude && typeof window.claude.use==="function"){
+    try{ const dl = await window.claude.use("downloads"); if(dl){ await dl.save({filename, data}); msg.textContent = "Файл збережено."; return; } }catch(e){ if(e && e.code==="cancelled"){ msg.textContent = "Скасовано."; return; } }
+  }
+  try{
+    const blob = new Blob([data], {type}); const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 2000); msg.textContent = "Файл " + filename + " завантажується.";
+  }catch(e){ msg.textContent = "Завантаження тут не працює — скопіюй текстом."; }
+}
+$("ex-text").onclick = () => { const t = exportText(); $("ex-out").textContent = t; copyText(t, $("ex-msg")); };
+$("ex-json").onclick = () => { const t = exportJSON(); $("ex-out").textContent = t; copyText(t, $("ex-msg")); };
+$("dl-json").onclick = () => download("rozpakovka-" + new Date().toISOString().slice(0,10) + ".json", exportJSON(), "application/json");
+$("dl-csv").onclick  = () => download("rozpakovka-" + new Date().toISOString().slice(0,10) + ".csv", exportCSV(), "text/csv");
+$("im-btn").onclick = () => $("im-file").click();
+$("im-file").addEventListener("change", e => {
+  const f = e.target.files[0]; if(!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    try{
+      const o = JSON.parse(rd.result); if(!o || !Array.isArray(o.questions)) throw new Error("формат");
+      let k = 0; o.questions.forEach(x => { if(byN[x.n] && typeof x.answer==="string"){ S.answers[x.n] = x.answer; if(x.skipped) S.skipped[x.n] = true; k++; } });
+      if(Array.isArray(o.checks)) o.checks.forEach(c => { if(c && typeof c.gap==="string") S.checks[c.n-1] = c.gap; });
+      save(); progress(); $("im-msg").textContent = "Імпортовано відповідей: " + k + ".";
+      renderOne(); renderList(); renderCheck();
+    }catch(err){ $("im-msg").textContent = "Це не файл експорту з цієї сторінки."; }
+    e.target.value = "";
+  };
+  rd.readAsText(f);
+});
+let resetArmed = false;
+$("reset").onclick = () => {
+  if(!resetArmed){ resetArmed = true; $("reset").textContent = "Точно стерти? Натисни ще раз"; setTimeout(()=>{ resetArmed=false; $("reset").textContent = "Стерти всі відповіді"; }, 4000); return; }
+  S.answers = {}; S.skipped = {}; S.checks = {}; resetArmed = false; $("reset").textContent = "Стерти всі відповіді";
+  save(); progress(); renderOne(); renderList(); renderCheck(); $("im-msg").textContent = "Усі відповіді стерто.";
+};
+function renderExport(){ $("ex-out").textContent = exportText(); $("ex-msg").textContent = ""; }
+
+// ---------- router ----------
+let view = "one";
+const VIEWS = ["one","list","check","export"];
+function route(){
+  const h = (location.hash||"#one").slice(1);
+  view = VIEWS.includes(h) ? h : "one";
+  VIEWS.forEach(v => { $("view-"+v).hidden = v!==view; });
+  document.querySelectorAll("#tabs a").forEach(a => a.classList.toggle("on", a.dataset.v===view));
+  $("actions").hidden = view!=="one";
+  stopRec();
+  if(view==="one") renderOne(); if(view==="list") renderList(); if(view==="check") renderCheck(); if(view==="export") renderExport();
+  window.scrollTo({top:0});
+}
+window.addEventListener("hashchange", route);
+
+// ---------- boot ----------
+load();
+fillSelect($("f-block"), [...new Set(Q.map(q=>q.block))], "Усі блоки");
+$("f-block").value = S.f.block; $("f-status").value = S.f.status; $("f-sort").value = S.f.sort;
+progress();
+route();
+</script>
+
+</body>
+</html>
