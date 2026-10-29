@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
-<title>Розпаковка</title>
+<title>88 питань</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap">
 <style>
@@ -12,34 +12,34 @@ img{max-width:100%}[hidden]{display:none!important}
 
 /* Material 3 baseline. Layout: top app bar with linear progress → one elevated card per question → bottom app bar with back / skip / next. */
 :root{
-  --primary:#6750A4; --on-primary:#FFFFFF; --primary-container:#EADDFF; --on-primary-container:#21005D;
-  --secondary-container:#E8DEF8; --on-secondary-container:#1D192B;
-  --surface:#FEF7FF; --surface-low:#F7F2FA; --surface-container:#F3EDF7; --surface-high:#ECE6F0; --surface-highest:#E6E0E9;
-  --on-surface:#1D1B20; --on-surface-variant:#49454F; --outline:#79747E; --outline-variant:#CAC4D0;
-  --error:#B3261E; --error-container:#F9DEDC; --on-error-container:#410E0B;
-  --inverse-surface:#322F35; --inverse-on-surface:#F5EFF7; --inverse-primary:#D0BCFF;
+  --primary:#A8366B; --on-primary:#FFFFFF; --primary-container:#FFD9E3; --on-primary-container:#3E0020;
+  --secondary-container:#D3E4FF; --on-secondary-container:#0C1D34;
+  --surface:#FFF8F8; --surface-low:#FFF0F3; --surface-container:#FBEAEF; --surface-high:#F5E4E9; --surface-highest:#EFDEE3;
+  --on-surface:#22191C; --on-surface-variant:#514347; --outline:#837377; --outline-variant:#D5C2C6;
+  --error:#BA1A1A; --error-container:#FFDAD6; --on-error-container:#410002;
+  --inverse-surface:#372E31; --inverse-on-surface:#FDEDF0; --inverse-primary:#FFB0C9;
   --shadow1:0 1px 2px rgba(0,0,0,.3),0 1px 3px 1px rgba(0,0,0,.15);
   --shadow3:0 4px 8px 3px rgba(0,0,0,.15),0 1px 3px rgba(0,0,0,.3);
   --font:"Roboto",system-ui,-apple-system,"Segoe UI",sans-serif;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --primary:#D0BCFF; --on-primary:#381E72; --primary-container:#4F378B; --on-primary-container:#EADDFF;
-    --secondary-container:#4A4458; --on-secondary-container:#E8DEF8;
-    --surface:#141218; --surface-low:#1D1B20; --surface-container:#211F26; --surface-high:#2B2930; --surface-highest:#36343B;
-    --on-surface:#E6E0E9; --on-surface-variant:#CAC4D0; --outline:#938F99; --outline-variant:#49454F;
-    --error:#F2B8B5; --error-container:#8C1D18; --on-error-container:#F9DEDC;
-    --inverse-surface:#E6E0E9; --inverse-on-surface:#322F35; --inverse-primary:#6750A4;
+    --primary:#FFB0C9; --on-primary:#640038; --primary-container:#871E54; --on-primary-container:#FFD9E3;
+    --secondary-container:#2F4866; --on-secondary-container:#D3E4FF;
+    --surface:#1A1114; --surface-low:#22191C; --surface-container:#271D20; --surface-high:#32272A; --surface-highest:#3D3135;
+    --on-surface:#F1DEE2; --on-surface-variant:#D5C2C6; --outline:#9E8C91; --outline-variant:#514347;
+    --error:#FFB4AB; --error-container:#93000A; --on-error-container:#FFDAD6;
+    --inverse-surface:#F1DEE2; --inverse-on-surface:#372E31; --inverse-primary:#A8366B;
     color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --primary:#D0BCFF; --on-primary:#381E72; --primary-container:#4F378B; --on-primary-container:#EADDFF;
-  --secondary-container:#4A4458; --on-secondary-container:#E8DEF8;
-  --surface:#141218; --surface-low:#1D1B20; --surface-container:#211F26; --surface-high:#2B2930; --surface-highest:#36343B;
-  --on-surface:#E6E0E9; --on-surface-variant:#CAC4D0; --outline:#938F99; --outline-variant:#49454F;
-  --error:#F2B8B5; --error-container:#8C1D18; --on-error-container:#F9DEDC;
-  --inverse-surface:#E6E0E9; --inverse-on-surface:#322F35; --inverse-primary:#6750A4;
+  --primary:#FFB0C9; --on-primary:#640038; --primary-container:#871E54; --on-primary-container:#FFD9E3;
+  --secondary-container:#2F4866; --on-secondary-container:#D3E4FF;
+  --surface:#1A1114; --surface-low:#22191C; --surface-container:#271D20; --surface-high:#32272A; --surface-highest:#3D3135;
+  --on-surface:#F1DEE2; --on-surface-variant:#D5C2C6; --outline:#9E8C91; --outline-variant:#514347;
+  --error:#FFB4AB; --error-container:#93000A; --on-error-container:#FFDAD6;
+  --inverse-surface:#F1DEE2; --inverse-on-surface:#372E31; --inverse-primary:#A8366B;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -54,9 +54,9 @@ p{margin:0}
 .appbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px))) 0 calc(-1 * max(16px,env(safe-area-inset-right,0px)))}
 .appbar-in{max-width:600px;margin:0 auto;height:64px;display:flex;align-items:center;justify-content:space-between;gap:16px;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.appbar .title{font:400 22px/28px var(--font)}
+.appbar .title{font:400 12px/16px var(--font);letter-spacing:.4px;color:var(--on-surface-variant)}
 .appbar .counter{font:500 14px/20px var(--font);letter-spacing:.1px;color:var(--on-surface-variant);font-variant-numeric:tabular-nums}
-.progress{height:4px;background:var(--surface-highest)}
+.progress{height:4px;background:var(--secondary-container)}
 .progress i{display:block;height:100%;width:0;background:var(--primary);transition:width .4s cubic-bezier(.2,0,0,1)}
 
 /* screens */
@@ -72,12 +72,18 @@ p{margin:0}
 
 /* outlined text field */
 .field{position:relative}
+.field input{display:block;width:100%;height:56px;padding:0 16px;border:1px solid var(--outline);border-radius:4px;background:transparent;color:var(--on-surface);font:16px/24px var(--font);letter-spacing:.5px;outline:none;caret-color:var(--primary)}
+.field input:hover{border-color:var(--on-surface)}
+.field input:focus{border:2px solid var(--primary);padding:0 15px}
 .field textarea{display:block;width:100%;min-height:136px;padding:16px;border:1px solid var(--outline);border-radius:4px;background:transparent;color:var(--on-surface);font:16px/24px var(--font);letter-spacing:.5px;resize:vertical;outline:none;caret-color:var(--primary)}
 .field textarea:hover{border-color:var(--on-surface)}
 .field textarea:focus{border:2px solid var(--primary);padding:15px}
 .field label{position:absolute;left:12px;top:16px;padding:0 4px;background:var(--surface-low);color:var(--on-surface-variant);font:16px/24px var(--font);pointer-events:none;transition:top .15s,font-size .15s,color .15s}
 .field textarea:focus + label,.field textarea:not(:placeholder-shown) + label{top:-8px;font-size:12px;line-height:16px}
 .field textarea:focus + label{color:var(--primary)}
+.field input + label{background:var(--surface)}
+.field input:focus + label,.field input:not(:placeholder-shown) + label{top:-8px;font-size:12px;line-height:16px}
+.field input:focus + label{color:var(--primary)}
 .support{font:400 12px/16px var(--font);letter-spacing:.4px;color:var(--on-surface-variant);padding:0 16px;margin-top:-12px}
 
 /* buttons */
@@ -96,7 +102,7 @@ p{margin:0}
 .btn:disabled,.icon-btn:disabled{opacity:.38;cursor:default}
 .btn:disabled::before{opacity:0}
 .icon-btn{width:48px;height:48px;border-radius:24px;background:transparent;color:var(--on-surface-variant)}
-.fab{height:56px;padding:0 20px 0 16px;border-radius:16px;background:var(--primary-container);color:var(--on-primary-container);box-shadow:var(--shadow3);font-size:14px}
+.fab{height:56px;padding:0 20px 0 16px;border-radius:16px;background:var(--secondary-container);color:var(--on-secondary-container);box-shadow:var(--shadow3);font-size:14px}
 .fab.on{background:var(--error-container);color:var(--on-error-container)}
 .fab.on .dot{width:10px;height:10px;border-radius:5px;background:var(--error);animation:blink 1.2s infinite}
 @keyframes blink{50%{opacity:.3}}
@@ -141,14 +147,14 @@ p{margin:0}
 
 
 <header class="appbar">
-  <div class="appbar-in"><span class="title">Розпаковка</span><span class="counter" id="counter">0 / 88</span></div>
+  <div class="appbar-in"><span class="title" id="saved-state" aria-live="polite"></span><span class="counter" id="counter">0 / 88</span></div>
   <div class="progress" role="progressbar" aria-label="Заповнено" aria-valuemin="0" aria-valuemax="88" aria-valuenow="0" id="pbar"><i id="pfill"></i></div>
 </header>
 
 <main class="main">
   <section id="s-intro" class="hero">
     <h1>88 питань про тебе і твою роботу</h1>
-    <p class="lead">Відповіді зберігаються в цьому браузері самі. В кінці буде кнопка «Скопіювати відповіді», щоб їх скинути.</p>
+    <p class="lead">Відповіді зберігаються самі — і в цьому браузері, і в таблиці. Можна відповідати не за один раз.</p>
     <ul class="rules">
       <li><span class="num">1</span><span><b>Факт і приклад, а не оцінка.</b> «Я відповідальна» — ні. «За три місяці жодного зірваного дедлайну» — так.</span></li>
       <li><span class="num">2</span><span><b>Під питанням є підказка «Доказ»</b> — що подивитись або згадати. Нема доказу — так і пиши.</span></li>
@@ -156,6 +162,11 @@ p{margin:0}
       <li><span class="num">4</span><span><b>«Не знаю» — нормальна відповідь.</b> Краще, ніж гарна вигадка.</span></li>
       <li><span class="num">5</span><span><b>Можна наговорити.</b> Кнопка з мікрофоном або мікрофон на клавіатурі телефону. Не за один раз — повертайся, все лишиться.</span></li>
     </ul>
+    <div class="field" style="margin-top:4px">
+      <input id="name" type="text" placeholder=" " autocomplete="name" maxlength="80">
+      <label for="name">Як тебе звати</label>
+    </div>
+    <div class="support">Щоб відповіді були підписані. Можна не вказувати.</div>
     <div class="stack">
       <button class="btn filled wide" id="start" type="button">Почати</button>
       <button class="btn tonal wide" id="resume" type="button" hidden>Продовжити</button>
@@ -193,11 +204,11 @@ p{margin:0}
       <div class="stat"><b id="st-done">0</b><span>відповідей</span></div>
       <div class="stat"><b id="st-left">0</b><span>без відповіді</span></div>
     </div>
-    <p class="lead">Скопіюй відповіді й скинь їх у чат або повідомленням. Файл — те саме, тільки для зберігання.</p>
+    <p class="lead" id="done-lead">Відповіді вже в таблиці. Якщо хочеш — скопіюй їх текстом або збережи файл.</p>
     <div class="stack">
-      <button class="btn filled wide has-icon" id="copy" type="button"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Скопіювати відповіді</button>
-      <button class="btn tonal wide has-icon" id="dl" type="button"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>Завантажити файл</button>
-      <button class="btn outlined wide" id="to-left" type="button">До питань без відповіді</button>
+      <button class="btn tonal wide has-icon" id="copy" type="button"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Скопіювати відповіді</button>
+      <button class="btn outlined wide has-icon" id="dl" type="button"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>Завантажити файл</button>
+      <button class="btn filled wide" id="to-left" type="button">До питань без відповіді</button>
       <button class="btn wide" id="back-q" type="button">Назад до питань</button>
       <button class="btn err wide" id="reset" type="button">Стерти все й почати заново</button>
     </div>
@@ -223,7 +234,7 @@ const $ = id => document.getElementById(id);
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 // ---------- state ----------
-let S = {answers:{}, skipped:{}, cur:1, started:false};
+let S = {answers:{}, skipped:{}, cur:1, started:false, name:"", id:""};
 function load(){
   try{
     const raw = localStorage.getItem(KEY);
@@ -281,7 +292,7 @@ function renderQ(){
   save();
 }
 function go(delta){
-  stopRec();
+  stopRec(); if(dirty) sync();
   const j = S.cur + delta;
   if(j < 1){ show("intro"); return; }
   if(j > N){ show("done"); return; }
@@ -291,11 +302,11 @@ $("start").onclick = () => { S.started = true; S.cur = 1; show("q"); };
 $("resume").onclick = () => { S.started = true; show("q"); };
 $("prev").onclick = () => go(-1);
 $("next").onclick = () => go(1);
-$("skip").onclick = () => { if(!answered(S.cur)) S.skipped[S.cur] = true; save(); go(1); };
+$("skip").onclick = () => { if(!answered(S.cur)) S.skipped[S.cur] = true; save(); queueSync(); go(1); };
 $("ans").addEventListener("input", e => {
   if(recOn){ committed = e.target.value; interim = ""; }
   S.answers[S.cur] = e.target.value; if(e.target.value.trim()) delete S.skipped[S.cur];
-  autogrow(e.target); save(); progress();
+  autogrow(e.target); save(); progress(); queueSync();
 });
 $("ans").addEventListener("keydown", e => { if((e.metaKey||e.ctrlKey) && e.key==="Enter"){ e.preventDefault(); go(1); } });
 
@@ -306,7 +317,7 @@ function renderDone(){
   $("to-left").hidden = d===N;
 }
 function exportText(){
-  let out = "Розпаковка — відповіді (" + new Date().toLocaleDateString("uk-UA") + ")\n", lastBlock = "";
+  let out = "Відповіді на 88 питань (" + new Date().toLocaleDateString("uk-UA") + ")" + (S.name ? " — " + S.name : "") + "\n", lastBlock = "";
   Q.forEach(q => {
     if(q.block!==lastBlock){ out += "\n\n=== " + q.block + " ===\n"; lastBlock = q.block; }
     const a = (S.answers[q.n]||"").trim();
@@ -315,7 +326,7 @@ function exportText(){
   return out;
 }
 function exportJSON(){
-  return JSON.stringify({exported:new Date().toISOString(), questions:Q.map(q => ({n:q.n, block:q.block, rubric:q.rubric, question:q.q, proof:q.proof, purpose:q.tag, answer:S.answers[q.n]||"", skipped:!!S.skipped[q.n] && !answered(q.n)}))}, null, 2);
+  return JSON.stringify({exported:new Date().toISOString(), name:S.name||"", questions:Q.map(q => ({n:q.n, block:q.block, rubric:q.rubric, question:q.q, proof:q.proof, purpose:q.tag, answer:S.answers[q.n]||"", skipped:!!S.skipped[q.n] && !answered(q.n)}))}, null, 2);
 }
 $("copy").onclick = async () => {
   const t = exportText();
@@ -323,7 +334,7 @@ $("copy").onclick = async () => {
   catch(e){ const o = $("out"); o.hidden = false; o.value = t; o.style.height = "240px"; o.focus(); o.select(); snack("Виділено нижче — скопіюй вручну."); }
 };
 $("dl").onclick = async () => {
-  const name = "rozpakovka-" + new Date().toISOString().slice(0,10) + ".json", data = exportJSON();
+  const name = "vidpovidi-" + new Date().toISOString().slice(0,10) + ".json", data = exportJSON();
   if(window.claude && typeof window.claude.use==="function"){
     try{ const dl = await window.claude.use("downloads"); if(dl){ await dl.save({filename:name, data}); snack("Файл збережено."); return; } }
     catch(e){ if(e && e.code==="cancelled"){ snack("Скасовано."); return; } }
@@ -339,9 +350,27 @@ $("back-q").onclick = () => { S.cur = N; show("q"); };
 let armed = false;
 $("reset").onclick = () => {
   if(!armed){ armed = true; $("reset").textContent = "Точно стерти? Натисни ще раз"; setTimeout(()=>{ armed = false; $("reset").textContent = "Стерти все й почати заново"; }, 4000); return; }
-  S = {answers:{}, skipped:{}, cur:1, started:false}; armed = false; $("reset").textContent = "Стерти все й почати заново";
+  S = {answers:{}, skipped:{}, cur:1, started:false, name:"", id:""}; armed = false; $("name").value = ""; $("reset").textContent = "Стерти все й почати заново";
   save(); progress(); show("intro"); snack("Усе стерто.");
 };
+
+// ---------- sync to the Google Sheet ----------
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbzojMbPU_LGRD6alW8oIovJPZK_046sJm_bVQySkK_wbG4T0tiPrw4ODeq6u1DUyD1YHQ/exec";
+let dirty = false, syncT = null, sentHeader = false;
+function setSaved(t){ $("saved-state").textContent = t; }
+function queueSync(){ dirty = true; setSaved("зберігаю…"); clearTimeout(syncT); syncT = setTimeout(sync, 1500); }
+async function sync(){
+  if(!SHEET_URL || !S.id) return;
+  clearTimeout(syncT); dirty = false;
+  const answers = {};
+  Q.forEach(q => { const a = (S.answers[q.n]||"").trim(); answers[q.n] = a || (S.skipped[q.n] ? "(не знаю)" : ""); });
+  const payload = {id:S.id, name:S.name||"", total:N, answers};
+  if(!sentHeader) payload.questions = Q.map(q => ({n:q.n, q:q.q}));
+  try{
+    await fetch(SHEET_URL, {method:"POST", mode:"no-cors", keepalive:true, headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(payload)});
+    sentHeader = true; setSaved("збережено в таблиці");
+  }catch(e){ setSaved("без інтернету — збережено тут"); dirty = true; clearTimeout(syncT); syncT = setTimeout(sync, 15000); }
+}
 
 // ---------- voice ----------
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -353,7 +382,7 @@ function renderDictation(){
   const ta = $("ans");
   ta.value = interim ? join(committed, interim) : committed;
   S.answers[S.cur] = committed; if(committed.trim()) delete S.skipped[S.cur];
-  autogrow(ta); ta.scrollTop = ta.scrollHeight; save(); progress();
+  autogrow(ta); ta.scrollTop = ta.scrollHeight; save(); progress(); queueSync();
 }
 function startRec(){
   committed = $("ans").value; interim = ""; lastFinal = "";
@@ -406,6 +435,10 @@ document.addEventListener("visibilitychange", () => { if(document.hidden) stopRe
 
 // ---------- boot ----------
 load(); progress();
+if(!S.id){ S.id = (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2)); save(); }
+$("name").value = S.name || "";
+$("name").addEventListener("input", e => { S.name = e.target.value.trim(); save(); queueSync(); });
+window.addEventListener("pagehide", () => { if(dirty) sync(); });
 show(S.started ? "q" : "intro");
 </script>
 
