@@ -366,7 +366,7 @@ $("prev").onclick = () => go(-1);
 $("next").onclick = () => go(1);
 $("skip").onclick = () => { if(!answered(S.cur)) S.skipped[S.cur] = true; save(); queueSync(); go(1); };
 $("ans").addEventListener("input", e => {
-  if(recOn){ committed = e.target.value; interim = ""; }
+  if(recOn || rec){ base = e.target.value; finals = []; interim = ""; doneIdx = lastLen; }
   S.answers[S.cur] = e.target.value; if(e.target.value.trim()) delete S.skipped[S.cur];
   autogrow(e.target); save(); progress(); queueSync();
 });
@@ -446,70 +446,83 @@ function flush(){  // остання відправка, коли сторінк
 // ---------- voice ----------
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent));
-let rec = null, recOn = false, recQ = 0, committed = "", interim = "", lastFinal = "", lastFinalAt = 0, restartT = null, endT = null, silent = 0;
-const join = (a, b) => a ? (/\s$/.test(a) ? a + b : a + " " + b) : b;
+const IDLE_MS = 120000;   // дві хвилини повної тиші — вимикаємо, щоб мікрофон не висів вічно
+let rec = null, recOn = false, recQ = 0, base = "", finals = [], interim = "", doneIdx = 0, lastLen = 0, restartT = null, endT = null, idleT = null, startTries = 0;
+const join = (a, b) => a ? (b ? (/\s$/.test(a) ? a + b : a + " " + b) : a) : b;
 const MIC_PATH = '<path fill="currentColor" d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/>';
 const STOP_PATH = '<path fill="currentColor" d="M6 6h12v12H6z"/>';
 function hint(t){ $("mic-hint").textContent = t; }
-function micUI(on){
-  $("mic").classList.toggle("on", on); $("mic-label").textContent = on ? "Зупинити" : "Надиктувати"; $("mic-ico").innerHTML = on ? STOP_PATH : MIC_PATH;
-}
+function micUI(on){ $("mic").classList.toggle("on", on); $("mic-label").textContent = on ? "Зупинити" : "Надиктувати"; $("mic-ico").innerHTML = on ? STOP_PATH : MIC_PATH; }
+function compose(){ return join(join(base, finals.join(" ")), interim); }
 function renderDictation(){
   // пишемо в те питання, для якого запис починався, навіть якщо людина вже перейшла далі
-  S.answers[recQ] = committed; if(committed.trim()) delete S.skipped[recQ];
-  if(S.cur===recQ){ const ta = $("ans"); ta.value = interim ? join(committed, interim) : committed; autogrow(ta); ta.scrollTop = ta.scrollHeight; }
+  const text = compose();
+  S.answers[recQ] = text; if(text.trim()) delete S.skipped[recQ];
+  if(S.cur===recQ){ const ta = $("ans"); ta.value = text; autogrow(ta); ta.scrollTop = ta.scrollHeight; }
   save(); progress(); queueSync();
 }
-function finalize(){ if(interim){ committed = join(committed, interim); interim = ""; renderDictation(); } }
-function startRec(){
+function commitSession(){ base = compose(); finals = []; interim = ""; doneIdx = 0; lastLen = 0; }
+function readResults(e){
+  const res = e.results, len = res.length;
+  if(len < doneIdx) doneIdx = 0;                    // браузер почав новий список — старе вже в base
+  lastLen = len;
+  let gotFinal = false; const inter = [];
+  for(let i = Math.max(e.resultIndex, 0); i < len; i++){
+    const r = res[i]; const t = (r && r[0] && r[0].transcript || "").trim();
+    if(r && r.isFinal){
+      if(i < doneIdx) continue;                     // Android надсилає історію ще раз — пропускаємо вже записане
+      if(t){ const prev = finals[finals.length-1]; if(prev && t.startsWith(prev)) finals[finals.length-1] = t; else if(prev !== t) finals.push(t); }
+      doneIdx = i + 1; gotFinal = true;
+    } else if(t){
+      const prev = inter[inter.length-1];
+      if(prev && t.startsWith(prev)) inter[inter.length-1] = t; else inter.push(t);
+    }
+  }
+  if(gotFinal) interim = inter.join(" ");           // остаточний текст уже є, проміжний лише те, що говориться зараз
+  else if(inter.length) interim = inter.join(" ");  // порожню подію не вважаємо «текст зник»
+}
+function armIdle(){ clearTimeout(idleT); idleT = setTimeout(() => { if(recOn){ stopRec(); hint("Мікрофон вимкнувся після двох хвилин тиші. Натисни ще раз, коли будеш готова."); } }, IDLE_MS); }
+function newSession(){
   let r;
-  try{ r = new SR(); }catch(e){ hint("Не вдалося увімкнути мікрофон. Натисни мікрофон на клавіатурі."); return; }
-  if(rec){ finalize(); clearTimeout(endT); }     // попередній запис ще не закрився — доклеюємо його хвіст
-  rec = r; recQ = S.cur; committed = $("ans").value; interim = ""; lastFinal = ""; silent = 0;
-  r.lang = "uk-UA"; r.interimResults = true; r.maxAlternatives = 1;
-  r.continuous = !isMobile;            // на телефонах безперервний режим дублює текст — слухаємо фразами і перезапускаємо
-  r.onresult = e => {
-    if(rec!==r) return;
-    let fin = "", inter = "";
-    for(let i = e.resultIndex; i < e.results.length; i++){ const x = e.results[i]; if(x.isFinal) fin += x[0].transcript; else inter += x[0].transcript; }
-    if(fin){
-      fin = fin.trim(); silent = 0;
-      if(fin && !(fin===lastFinal && Date.now()-lastFinalAt < 4000)){ committed = join(committed, fin); lastFinal = fin; lastFinalAt = Date.now(); }
-      interim = "";
-    } else interim = inter;
-    renderDictation();
-  };
+  try{ r = new SR(); }catch(e){ return false; }
+  rec = r;
+  r.lang = "uk-UA"; r.interimResults = true; r.maxAlternatives = 1; r.continuous = true;
+  r.onresult = e => { if(rec!==r) return; startTries = 0; readResults(e); renderDictation(); armIdle(); };
   r.onerror = e => {
     if(rec!==r) return;
     if(e.error==="not-allowed" || e.error==="service-not-allowed"){ recOn = false; micUI(false); hint("Доступ до мікрофона закритий. Дозволь його в налаштуваннях сайту або натисни мікрофон на клавіатурі."); }
+    else if(e.error==="audio-capture"){ recOn = false; micUI(false); hint("Мікрофон не знайдено. Перевір, чи він не зайнятий іншим застосунком."); }
     else if(e.error==="network"){ recOn = false; micUI(false); hint("Розпізнавання не з’єдналось. Спробуй ще раз або мікрофон на клавіатурі."); }
-    else if(e.error==="no-speech"){ silent++; if(silent >= 3){ recOn = false; micUI(false); hint("Не чую. Натисни «Надиктувати» ще раз, коли будеш готова."); } }
-    // aborted: ігноруємо, далі спрацює onend
+    // no-speech / aborted: нормальні паузи, далі спрацює onend і запис продовжиться
   };
   r.onend = () => {
     if(rec!==r) return;
-    finalize();                                   // усе, що лишилось проміжним, стає текстом
+    commitSession(); renderDictation();
     clearTimeout(endT);
     if(recOn){
-      clearTimeout(restartT);
-      restartT = setTimeout(() => {
-        if(rec!==r || !recOn) return;
-        try{ r.start(); }catch(err){ recOn = false; rec = null; micUI(false); hint("Натисни «Надиктувати», щоб продовжити."); }
-      }, 150);
+      // браузер закриває сесію після паузи — одразу відкриваємо нову, щоб нічого не загубити
+      if(!newSession()){ startTries++; clearTimeout(restartT); restartT = setTimeout(() => { if(recOn && rec===null && !newSession()){ recOn = false; micUI(false); hint("Запис перервався. Натисни «Надиктувати», щоб продовжити."); } }, 300); }
     } else rec = null;
   };
-  try{ r.start(); }catch(e){ rec = null; hint("Не вдалося увімкнути мікрофон. Натисни мікрофон на клавіатурі."); return; }
-  recOn = true; micUI(true); hint("Слухаю. Говори, текст з’являється в полі.");
+  try{ r.start(); }catch(e){ rec = null; return false; }
+  return true;
+}
+function startRec(){
+  if(rec){ commitSession(); renderDictation(); clearTimeout(endT); rec = null; }   // попередній запис ще не закрився — доклеюємо його хвіст
+  recQ = S.cur; base = $("ans").value; finals = []; interim = ""; doneIdx = 0; lastLen = 0; startTries = 0;
+  recOn = true;
+  if(!newSession()){ recOn = false; hint("Не вдалося увімкнути мікрофон. Натисни мікрофон на клавіатурі."); return; }
+  micUI(true); hint("Слухаю. Говори, текст з’являється в полі. Паузи — не страшно."); armIdle();
 }
 function stopRec(){
   if(!recOn && !rec) return;
-  recOn = false; clearTimeout(restartT);
+  recOn = false; clearTimeout(restartT); clearTimeout(idleT);
   micUI(false); hint(isMobile ? "або мікрофон на клавіатурі" : "");
   const r = rec;
   if(r){
-    try{ r.stop(); }catch(e){}                   // обробники лишаються: остання фраза часто приходить уже після stop()
+    try{ r.stop(); }catch(e){}                      // обробники лишаються: остання фраза часто приходить уже після stop()
     clearTimeout(endT);
-    endT = setTimeout(() => { if(rec===r){ finalize(); rec = null; } }, 2500);
+    endT = setTimeout(() => { if(rec===r){ commitSession(); renderDictation(); rec = null; } }, 2500);
   }
 }
 if(!SR){
