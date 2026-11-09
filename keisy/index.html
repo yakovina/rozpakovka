@@ -1,0 +1,800 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Кейси</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Golos+Text:wght@400;500&display=swap">
+<style>
+img{max-width:100%}[hidden]{display:none!important}
+
+/* Material 3 Expressive, pink→blue. Layout: translucent app bar with gradient progress → one glass card per question over a soft gradient wash → floating pill toolbar. */
+:root{
+  --primary:#A8366B; --on-primary:#FFFFFF; --primary-container:#FFD9E3; --on-primary-container:#3E0020;
+  --blue:#3F6FB5; --secondary-container:#D7E6FF; --on-secondary-container:#0C1D34;
+  --surface:#FFF7F9; --surface-low:#FFFFFF; --surface-container:#FBEEF3; --surface-high:#F6E5EC; --surface-highest:#F0DDE5;
+  --on-surface:#22191C; --on-surface-variant:#5A4B50; --outline:#8A7A7F; --outline-variant:#E3D2D8;
+  --error:#BA1A1A; --error-container:#FFDAD6; --on-error-container:#410002;
+  --inverse-surface:#372E31; --inverse-on-surface:#FDEDF0;
+  --blob-pink:rgba(255,160,196,.55); --blob-blue:rgba(150,190,255,.55); --blob-lilac:rgba(215,180,255,.45);
+  --glass:rgba(255,255,255,.72); --glass-line:rgba(255,255,255,.9);
+  --grad:linear-gradient(120deg,#C2447F 0%,#8A56B4 52%,#4A78C2 100%);
+  --shadow1:0 1px 2px rgba(80,30,60,.10),0 6px 20px rgba(120,60,110,.10);
+  --shadow3:0 8px 28px rgba(120,60,110,.20),0 2px 6px rgba(80,30,60,.12);
+  --font:"Golos Text","Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --display:"Manrope","Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --primary:#FFB0C9; --on-primary:#640038; --primary-container:#871E54; --on-primary-container:#FFD9E3;
+    --blue:#A8C7FF; --secondary-container:#2B4568; --on-secondary-container:#D7E6FF;
+    --surface:#171014; --surface-low:#231A1F; --surface-container:#281E24; --surface-high:#33282E; --surface-highest:#3E3238;
+    --on-surface:#F2E0E6; --on-surface-variant:#D3C2C8; --outline:#9C8B91; --outline-variant:#4E4046;
+    --error:#FFB4AB; --error-container:#93000A; --on-error-container:#FFDAD6;
+    --inverse-surface:#F2E0E6; --inverse-on-surface:#372E31;
+    --blob-pink:rgba(190,70,130,.38); --blob-blue:rgba(70,110,190,.38); --blob-lilac:rgba(130,90,190,.30);
+    --glass:rgba(40,28,36,.68); --glass-line:rgba(255,255,255,.08);
+    --grad:linear-gradient(120deg,#F28DB8 0%,#B88CF0 52%,#86B0FF 100%);
+    --shadow1:0 1px 2px rgba(0,0,0,.35),0 8px 24px rgba(0,0,0,.30);
+    --shadow3:0 10px 30px rgba(0,0,0,.45),0 2px 6px rgba(0,0,0,.35);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --primary:#FFB0C9; --on-primary:#640038; --primary-container:#871E54; --on-primary-container:#FFD9E3;
+  --blue:#A8C7FF; --secondary-container:#2B4568; --on-secondary-container:#D7E6FF;
+  --surface:#171014; --surface-low:#231A1F; --surface-container:#281E24; --surface-high:#33282E; --surface-highest:#3E3238;
+  --on-surface:#F2E0E6; --on-surface-variant:#D3C2C8; --outline:#9C8B91; --outline-variant:#4E4046;
+  --error:#FFB4AB; --error-container:#93000A; --on-error-container:#FFDAD6;
+  --inverse-surface:#F2E0E6; --inverse-on-surface:#372E31;
+  --blob-pink:rgba(190,70,130,.38); --blob-blue:rgba(70,110,190,.38); --blob-lilac:rgba(130,90,190,.30);
+  --glass:rgba(40,28,36,.68); --glass-line:rgba(255,255,255,.08);
+  --grad:linear-gradient(120deg,#F28DB8 0%,#B88CF0 52%,#86B0FF 100%);
+  --shadow1:0 1px 2px rgba(0,0,0,.35),0 8px 24px rgba(0,0,0,.30);
+  --shadow3:0 10px 30px rgba(0,0,0,.45),0 2px 6px rgba(0,0,0,.35);
+  color-scheme:dark;
+}
+*{box-sizing:border-box;touch-action:manipulation}
+html,body{height:100%;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--surface);color:var(--on-surface);font:16px/24px var(--font);-webkit-font-smoothing:antialiased;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.bg{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;background:var(--surface)}
+.bg i{position:absolute;border-radius:50%;filter:blur(2px)}
+.bg .b1{width:70vmax;height:70vmax;left:-25vmax;top:-30vmax;background:radial-gradient(closest-side,var(--blob-pink),transparent 70%)}
+.bg .b2{width:80vmax;height:80vmax;right:-35vmax;bottom:-30vmax;background:radial-gradient(closest-side,var(--blob-blue),transparent 70%)}
+.bg .b3{width:50vmax;height:50vmax;left:30vw;top:40vh;background:radial-gradient(closest-side,var(--blob-lilac),transparent 70%)}
+@media (prefers-reduced-motion: no-preference){
+  .bg .b1{animation:drift 26s ease-in-out infinite alternate}
+  .bg .b2{animation:drift 32s ease-in-out infinite alternate-reverse}
+  .bg .b3{animation:drift 38s ease-in-out infinite alternate}
+}
+@keyframes drift{to{transform:translate(6vw,4vh) scale(1.08)}}
+svg{flex:none}
+p{margin:0}
+
+/* top app bar */
+.appbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--glass);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  margin:0 calc(-1 * max(16px,env(safe-area-inset-right,0px))) 0 calc(-1 * max(16px,env(safe-area-inset-left,0px)))}
+.appbar-in{max-width:600px;margin:0 auto;height:60px;display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.appbar .state{display:flex;align-items:center;gap:8px;font:400 12px/16px var(--font);letter-spacing:.3px;color:var(--on-surface-variant);min-width:0}
+.appbar .state i{width:8px;height:8px;border-radius:4px;background:var(--outline-variant);flex:none;transition:background .3s}
+.appbar .state.saving i{background:var(--blue);animation:blink 1s infinite}
+.appbar .state.saved i{background:#3DA26B}
+.appbar .state.offline i{background:var(--error)}
+.appbar .counter{font:600 13px/20px var(--display);letter-spacing:.2px;color:var(--on-primary-container);background:var(--primary-container);padding:4px 12px;border-radius:999px;font-variant-numeric:tabular-nums}
+.progress{height:4px;background:color-mix(in srgb,var(--secondary-container) 70%,transparent)}
+.progress i{display:block;height:100%;width:0;background:var(--grad);border-radius:0 2px 2px 0;transition:width .5s cubic-bezier(.2,0,0,1)}
+
+/* screens */
+.main{max-width:600px;margin:0 auto;padding-block:20px 140px}
+.card{position:relative;background:var(--surface-low);background:var(--glass);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+  border:1px solid var(--glass-line);border-radius:28px;box-shadow:var(--shadow1);padding:26px 22px 22px;display:flex;flex-direction:column;gap:20px;min-width:0;overflow:hidden}
+.card::before{content:"";position:absolute;inset:0 0 auto;height:4px;background:var(--grad);opacity:.9}
+.card.enter-next{animation:inNext .28s cubic-bezier(.2,0,0,1)}
+.card.enter-prev{animation:inPrev .28s cubic-bezier(.2,0,0,1)}
+@keyframes inNext{from{opacity:0;transform:translateY(10px)}}
+@keyframes inPrev{from{opacity:0;transform:translateY(-10px)}}
+.qhead{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.qmeta{display:flex;flex-direction:column;gap:2px;min-width:0}
+.qsaved{font:400 12px/16px var(--font);letter-spacing:.2px;color:var(--on-surface-variant);min-height:16px;transition:color .2s}
+.qsaved.ok{color:#2E8B57}
+.qsaved.wait{color:var(--blue)}
+.verify{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:14px;background:var(--secondary-container);color:var(--on-secondary-container);font:400 14px/20px var(--font)}
+.verify.ok{background:#DDF3E4;color:#0F3D23}
+.verify.bad{background:var(--error-container);color:var(--on-error-container)}
+.verify svg{flex:none;margin-top:1px}
+.overline{font:600 12px/16px var(--display);letter-spacing:.8px;text-transform:uppercase;color:var(--primary)}
+.qnum{font:700 44px/1 var(--display);letter-spacing:-.03em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;opacity:.55;font-variant-numeric:tabular-nums}
+.q{font:600 25px/1.3 var(--display);letter-spacing:-.01em;margin:0;text-wrap:balance}
+.proof{display:flex;gap:12px;align-items:flex-start;background:var(--secondary-container);color:var(--on-secondary-container);border-radius:16px;padding:12px 14px;font:400 14px/20px var(--font);letter-spacing:.2px}
+.proof .ic{flex:none;width:28px;height:28px;border-radius:14px;background:color-mix(in srgb,var(--blue) 18%,transparent);color:var(--blue);display:inline-flex;align-items:center;justify-content:center}
+.proof b{font-weight:500;color:var(--blue)}
+
+/* text fields */
+.field{position:relative}
+.field textarea,.field input{display:block;width:100%;border:1px solid var(--outline-variant);border-radius:16px;background:color-mix(in srgb,var(--surface-low) 55%,transparent);color:var(--on-surface);font:16px/24px var(--font);letter-spacing:.2px;outline:none;caret-color:var(--primary);transition:border-color .15s,box-shadow .15s,background .15s}
+.field textarea{min-height:140px;padding:18px 16px;resize:vertical}
+.field.note textarea{min-height:88px}
+.field input{height:56px;padding:0 16px}
+.field textarea:hover,.field input:hover{border-color:var(--outline)}
+.field textarea:focus,.field input:focus{border-color:var(--primary);box-shadow:0 0 0 4px color-mix(in srgb,var(--primary) 16%,transparent);background:var(--surface-low)}
+.field label{position:absolute;left:12px;top:16px;padding:0 6px;border-radius:6px;background:transparent;color:var(--on-surface-variant);font:16px/24px var(--font);pointer-events:none;transition:top .15s,font-size .15s,color .15s,background .15s}
+.field textarea:focus + label,.field textarea:not(:placeholder-shown) + label,.field input:focus + label,.field input:not(:placeholder-shown) + label{top:-9px;font-size:12px;line-height:18px;font-weight:500;background:var(--surface-low)}
+.field textarea:focus + label,.field input:focus + label{color:var(--primary)}
+.support{font:400 12px/16px var(--font);letter-spacing:.3px;color:var(--on-surface-variant);padding:0 16px;margin-top:-12px}
+
+/* варіанти відповіді */
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;border:1px solid var(--outline-variant);border-radius:14px;padding:12px 14px;background:color-mix(in srgb,var(--surface-low) 55%,transparent);color:var(--on-surface);font:400 15px/22px var(--font);cursor:pointer;transition:background .15s,border-color .15s,transform .15s;-webkit-tap-highlight-color:transparent}
+.opt:hover{border-color:var(--outline)}
+.opt:active{transform:scale(.99)}
+.opt .box{flex:none;width:22px;height:22px;border-radius:11px;border:2px solid var(--outline);margin-top:0;display:inline-flex;align-items:center;justify-content:center;color:transparent;transition:background .15s,border-color .15s}
+.opt.multi .box{border-radius:7px}
+.opt.on{background:var(--secondary-container);border-color:var(--blue);color:var(--on-secondary-container)}
+.opt.on .box{background:var(--blue);border-color:var(--blue);color:#fff}
+.opt.crossed{background:transparent;border-style:dashed;color:var(--on-surface-variant);text-decoration:line-through}
+.opt.crossed .box{background:transparent;border-color:var(--outline);color:var(--outline)}
+.opt:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips .opt{width:auto;padding:8px 14px;border-radius:999px;font-size:14px;line-height:20px;gap:8px}
+.chips .opt .box{width:18px;height:18px;border-radius:9px;border-width:2px}
+.rows{display:flex;flex-direction:column;gap:10px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:stretch}
+.row .opt{justify-content:center;text-align:center;padding:10px 12px}
+.row .opt .box{display:none}
+.mrow{display:flex;flex-direction:column;gap:6px}
+.mrow .lbl{font:500 14px/20px var(--font);color:var(--on-surface)}
+.mrow .cells{display:flex;flex-wrap:wrap;gap:6px}
+.mrow .cells .opt{width:auto;padding:6px 12px;border-radius:999px;font-size:13px;line-height:18px}
+.mrow .cells .opt .box{display:none}
+.srow{display:flex;flex-direction:column;gap:6px;padding:8px 10px;border-radius:14px;background:color-mix(in srgb,var(--surface-low) 45%,transparent)}
+.srow .lbls{display:flex;justify-content:space-between;gap:12px;font:500 13px/18px var(--font);color:var(--on-surface)}
+.srow .r{text-align:right}
+.srow .dots{display:flex;justify-content:space-between;align-items:center}
+.srow .dots::before{content:"";position:absolute}
+.dot5{width:32px;height:32px;border-radius:16px;border:2px solid var(--outline-variant);background:var(--surface-low);cursor:pointer;padding:0;transition:background .15s,border-color .15s,transform .15s}
+.dot5:hover{border-color:var(--outline)}
+.dot5.on{background:var(--primary);border-color:var(--primary);transform:scale(1.1)}
+.dot5:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.opthint{font:400 13px/18px var(--font);color:var(--blue);min-height:18px}
+.refchips{display:flex;flex-wrap:wrap;gap:6px}
+.refchips span{padding:4px 12px;border-radius:999px;background:var(--primary-container);color:var(--on-primary-container);font:500 13px/18px var(--font)}
+
+/* buttons */
+.btn,.fab,.icon-btn{position:relative;overflow:hidden;border:0;cursor:pointer;font:600 14px/20px var(--display);letter-spacing:.2px;display:inline-flex;align-items:center;justify-content:center;gap:8px;-webkit-tap-highlight-color:transparent;transition:transform .15s,box-shadow .15s}
+.btn{height:44px;padding:0 24px;border-radius:22px;background:transparent;color:var(--primary);white-space:nowrap}
+.btn.has-icon{padding-left:16px}
+.btn.has-icon-end{padding-right:16px}
+.btn.filled{background:var(--primary);color:var(--on-primary);box-shadow:0 2px 10px color-mix(in srgb,var(--primary) 35%,transparent)}
+.btn.grad{background:var(--grad);color:#fff;height:52px;border-radius:26px;font-size:15px;box-shadow:0 6px 20px rgba(150,70,140,.30)}
+.btn.tonal{background:var(--secondary-container);color:var(--on-secondary-container)}
+.btn.outlined{border:1px solid var(--outline-variant);color:var(--primary);background:color-mix(in srgb,var(--surface-low) 50%,transparent)}
+.btn.err{color:var(--error)}
+.btn.wide{width:100%}
+.btn:active,.fab:active{transform:scale(.98)}
+.btn::before,.fab::before,.icon-btn::before{content:"";position:absolute;inset:0;background:currentColor;opacity:0;transition:opacity .15s}
+.btn:hover::before,.fab:hover::before,.icon-btn:hover::before{opacity:.08}
+.btn:focus-visible,.fab:focus-visible,.icon-btn:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.btn:disabled,.icon-btn:disabled{opacity:.38;cursor:default}
+.btn:disabled::before{opacity:0}
+.icon-btn{width:48px;height:48px;border-radius:24px;background:transparent;color:var(--on-surface-variant)}
+.fab{height:56px;padding:0 20px 0 16px;border-radius:18px;background:var(--secondary-container);color:var(--on-secondary-container);box-shadow:var(--shadow3)}
+.fab .ic{width:32px;height:32px;border-radius:16px;background:var(--blue);color:#fff;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.fab.on{background:var(--error-container);color:var(--on-error-container)}
+.fab.on .ic{background:var(--error)}
+.wave{display:none;align-items:center;gap:3px;height:20px;margin-left:2px}
+.fab.on .wave{display:inline-flex}
+.wave i{width:3px;height:6px;border-radius:2px;background:currentColor;animation:wave 1s ease-in-out infinite}
+.wave i:nth-child(2){animation-delay:.12s}.wave i:nth-child(3){animation-delay:.24s}.wave i:nth-child(4){animation-delay:.36s}.wave i:nth-child(5){animation-delay:.48s}
+@keyframes wave{0%,100%{height:6px}50%{height:20px}}
+@keyframes blink{50%{opacity:.35}}
+.ripple{position:absolute;border-radius:50%;background:currentColor;opacity:.14;transform:scale(0);animation:ripple .5s ease-out forwards;pointer-events:none}
+@keyframes ripple{to{transform:scale(1);opacity:0}}
+.dictate{display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px}
+.hint{font:400 12px/16px var(--font);letter-spacing:.3px;color:var(--on-surface-variant);min-width:0}
+
+/* floating toolbar */
+.bottombar{position:fixed;left:0;right:0;bottom:0;z-index:6;pointer-events:none;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+.bottombar .in{pointer-events:auto;max-width:600px;margin:0 auto;display:flex;align-items:center;gap:6px;padding:8px;border-radius:999px;
+  background:var(--glass);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border:1px solid var(--glass-line);box-shadow:var(--shadow3)}
+.bottombar .spacer{flex:1}
+
+/* intro / done */
+.hero{display:flex;flex-direction:column;gap:18px;padding:12px 4px 0}
+.hero h1{font:700 34px/1.15 var(--display);letter-spacing:-.02em;margin:0;text-wrap:balance;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;padding-bottom:4px}
+.hero h2{font:700 30px/1.15 var(--display);letter-spacing:-.02em;margin:0}
+.hero .lead{color:var(--on-surface-variant);font-size:15px}
+.rules{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.rules li{display:flex;gap:14px;align-items:flex-start;font:400 14px/20px var(--font);letter-spacing:.1px;padding:12px 14px;border-radius:18px;background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--glass-line)}
+.rules li .ic{flex:none;width:36px;height:36px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;color:#fff;background:var(--grad)}
+.rules li:nth-child(2n) .ic{background:var(--blue)}
+.rules li:nth-child(3n) .ic{background:var(--primary)}
+.rules li b{font-weight:500;color:var(--on-surface)}
+.stack{display:flex;flex-direction:column;gap:12px;margin-top:6px}
+.badge{width:76px;height:76px;border-radius:38px;background:var(--grad);color:#fff;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(150,70,140,.30)}
+.stats{display:flex;gap:12px;flex-wrap:wrap}
+.stat{flex:1 1 120px;background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--glass-line);border-radius:20px;padding:14px 16px;min-width:0}
+.stat b{display:block;font:700 32px/1.1 var(--display);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.stat span{font:400 12px/16px var(--font);letter-spacing:.3px;color:var(--on-surface-variant)}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:8;overflow:hidden}
+.confetti i{position:absolute;top:-12px;width:8px;height:14px;border-radius:2px;opacity:.9;animation:fall 1.6s cubic-bezier(.2,.6,.3,1) forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(540deg);opacity:0}}
+
+/* snackbar */
+.snack{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,24px);opacity:0;z-index:9;
+  background:var(--inverse-surface);color:var(--inverse-on-surface);border-radius:12px;padding:14px 18px;font:400 14px/20px var(--font);letter-spacing:.2px;box-shadow:var(--shadow3);max-width:calc(100vw - 32px);transition:transform .2s,opacity .2s;pointer-events:none}
+.snack.show{transform:translate(-50%,0);opacity:1}
+.bottombar:not([hidden]) ~ .snack.show{bottom:calc(100px + env(safe-area-inset-bottom,0px))}
+
+@media (prefers-reduced-motion: reduce){.card.enter-next,.card.enter-prev,.ripple,.wave i,.confetti i,.appbar .state.saving i{animation:none}.progress i,.snack,.btn,.fab{transition:none}}
+
+/* кейси */
+.cases{display:flex;flex-direction:column;gap:8px}
+.case{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;text-align:left;border:1px solid var(--outline-variant);border-radius:16px;padding:14px 16px;background:color-mix(in srgb,var(--surface-low) 55%,transparent);color:var(--on-surface);font:500 15px/20px var(--font);cursor:pointer;transition:border-color .15s,background .15s}
+.case:hover{border-color:var(--outline)}
+.case:active{transform:scale(.99)}
+.case:disabled{opacity:.6;cursor:default}
+.case .nm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.case .pct{flex:none;font:600 12px/16px var(--display);letter-spacing:.2px;color:var(--on-primary-container);background:var(--primary-container);padding:4px 10px;border-radius:999px;font-variant-numeric:tabular-nums}
+.case.done .pct{background:#DDF3E4;color:#0F3D23}
+.case:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.overline.casename{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+</style>
+</head>
+<body>
+
+<div class="bg" aria-hidden="true"><i class="b1"></i><i class="b2"></i><i class="b3"></i></div>
+
+<header class="appbar">
+  <div class="appbar-in"><span class="state" id="saved-state" aria-live="polite"><i></i><span id="saved-text"></span></span><span class="counter" id="counter">0 / 14</span></div>
+  <div class="progress" role="progressbar" aria-label="Заповнено" aria-valuemin="0" aria-valuemax="14" aria-valuenow="0" id="pbar"><i id="pfill"></i></div>
+</header>
+
+<main class="main">
+  <section id="s-intro" class="hero">
+    <h1>Кейси</h1>
+    <p class="lead">Один клієнт — один кейс, 14 питань. Відповіді зберігаються самі. Можна повертатись і дописувати, коли з’являться нові цифри.</p>
+    <ul class="rules">
+      <li><span class="ic"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg></span><span><b>Цифри, а не «добре зайшло».</b> «600 підписників за 2 місяці без реклами» — так.</span></li>
+      <li><span class="ic"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg></span><span><b>Як було насправді.</b> Те, що не спрацювало, теж сюди — це найцікавіше для сторінки.</span></li>
+      <li><span class="ic"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/></svg></span><span><b>Можна наговорити.</b> Кнопка з мікрофоном або мікрофон на клавіатурі телефону.</span></li>
+    </ul>
+
+    <div class="field" style="margin-top:4px">
+      <input id="owner" type="text" placeholder=" " autocomplete="username" autocapitalize="off" spellcheck="false" maxlength="80">
+      <label for="owner">Твій нік в Instagram або телефон</label>
+    </div>
+    <div class="support">Той самий, що в анкеті. Сторінка запам’ятає — вдруге питати не буде.</div>
+
+    <div id="cases-box" hidden>
+      <div class="overline">Твої кейси</div>
+      <div class="cases" id="cases"></div>
+      <div class="support" id="cases-msg" style="margin-top:0"></div>
+    </div>
+
+    <div class="field" id="cname-field">
+      <input id="cname" type="text" placeholder=" " autocomplete="off" maxlength="80">
+      <label for="cname">Новий кейс: клієнт або проєкт</label>
+    </div>
+    <div class="support">Наприклад «Футбольна спільнота» або «Магазин свічок». Як у Trello.</div>
+    <div class="stack">
+      <button class="btn grad wide" id="start" type="button" disabled>Почати кейс</button>
+    </div>
+  </section>
+
+  <section id="s-q" hidden>
+    <div class="card" id="card">
+      <div class="qhead"><div class="qmeta"><span class="overline casename" id="q-pos">1 з 14</span><span class="qsaved" id="q-saved"></span></div><span class="qnum" id="q-num">1</span></div>
+      <h2 class="q" id="q-text"></h2>
+      <div class="proof" id="q-proof">
+        <span class="ic"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></span>
+        <div><b>Доказ.</b> <span id="q-proof-text"></span></div>
+      </div>
+      <div id="opts" hidden></div>
+      <div class="field" id="ans-field">
+        <textarea id="ans" rows="4" placeholder=" " autocomplete="off"></textarea>
+        <label for="ans" id="ans-label">Відповідь</label>
+      </div>
+      <div class="support" id="support">Факт, цифра, дата. Або пропусти — повернешся пізніше.</div>
+      <div class="dictate">
+        <button class="fab" id="mic" type="button">
+          <span class="ic"><svg id="mic-ico" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/></svg></span>
+          <span id="mic-label">Надиктувати</span>
+          <span class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+        </button>
+        <span class="hint" id="mic-hint"></span>
+      </div>
+    </div>
+  </section>
+
+  <section id="s-done" class="hero" hidden>
+    <span class="badge"><svg viewBox="0 0 24 24" width="36" height="36" aria-hidden="true"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span>
+    <h2 id="done-title">Кейс збережено</h2>
+    <div class="stats">
+      <div class="stat"><b id="st-done">0</b><span>відповідей</span></div>
+      <div class="stat"><b id="st-left">0</b><span>без відповіді</span></div>
+    </div>
+    <div class="verify" id="verify"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg><span id="verify-text">Звіряю з таблицею…</span></div>
+    <p class="lead">Дописати можна будь-коли: відкрий цей кейс зі списку на першій сторінці.</p>
+    <div class="stack">
+      <button class="btn grad wide" id="to-left" type="button">До питань без відповіді</button>
+      <button class="btn tonal wide has-icon" id="copy" type="button"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Скопіювати кейс текстом</button>
+      <button class="btn outlined wide" id="to-list" type="button">До списку кейсів</button>
+      <button class="btn wide" id="reverify" type="button">Звірити з таблицею ще раз</button>
+      <button class="btn wide" id="back-q" type="button">Назад до питань</button>
+    </div>
+    <textarea id="out" aria-label="Кейс текстом" hidden></textarea>
+  </section>
+</main>
+
+<nav class="bottombar" id="bottombar" hidden>
+  <div class="in">
+    <button class="icon-btn" id="prev" type="button" aria-label="Назад"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></button>
+    <span class="spacer"></span>
+    <button class="btn" id="skip" type="button">Пропустити</button>
+    <button class="btn filled has-icon-end" id="next" type="button"><span id="next-label">Далі</span><svg id="next-ico" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></button>
+  </div>
+</nav>
+<div class="snack" id="snack" role="status" aria-live="polite"></div>
+
+<script>
+const Q = [{"block": "Кейс", "rubric": "Хто і з чим прийшов", "q": "Чим займається клієнт і хто в нього купує?", "proof": "Посилання на сторінку, якщо можна показувати. Якщо ні — опиши так, щоб було зрозуміло: «магазин дитячого одягу в Києві».", "tag": "хто", "type": "text", "n": 1}, {"block": "Кейс", "rubric": "Хто і з чим прийшов", "q": "З чим клієнт прийшов? Його слова.", "proof": "Знайди перше повідомлення в переписці і скопіюй.", "tag": "до", "type": "text", "n": 2}, {"block": "Кейс", "rubric": "Хто і з чим прийшов", "q": "Що було на старті, в цифрах: підписники, продажі або заявки, скільки постів на місяць, хто вів до тебе.", "proof": "Скрін статистики або дата твого першого поста. Цифри, а не «мало».", "tag": "до", "type": "text", "n": 3}, {"block": "Кейс", "rubric": "Хто і з чим прийшов", "q": "Про що домовились: що робиш ти, що робить клієнт, на скільки місяців.", "proof": "Переписка або договір. Ціну можна не писати.", "tag": "домовленість", "type": "text", "n": 4}, {"block": "Кейс", "rubric": "Що ти робила", "q": "Що ти зробила? По кроках, як було насправді: з чого почала, що міняла по ходу.", "proof": "Дивись у переписку і в стрічку клієнта, не з пам’яті.", "tag": "процес", "type": "text", "n": 5}, {"block": "Кейс", "rubric": "Що ти робила", "q": "Що спрацювало найкраще? Одна річ — і чому ти так вважаєш.", "proof": "Цифра: скільки переглядів, скільки написали, скільки купили.", "tag": "спрацювало", "type": "text", "n": 6}, {"block": "Кейс", "rubric": "Що ти робила", "q": "Що не спрацювало? Що пробувала і кинула або переробила.", "proof": "Якщо здається, що все спрацювало, — згадай, що видалила або переробляла.", "tag": "не спрацювало", "type": "text", "n": 7}, {"block": "Кейс", "rubric": "Що вийшло", "q": "Що стало, в цифрах: ті самі показники, що на старті, і за який час.", "proof": "Скрін статистики за той самий період.", "tag": "після", "type": "text", "n": 8}, {"block": "Кейс", "rubric": "Що вийшло", "q": "Що сказав клієнт? Дослівно.", "proof": "Скрін повідомлення або відгуку.", "tag": "слова клієнта", "type": "text", "n": 9}, {"block": "Кейс", "rubric": "Що вийшло", "q": "Чого клієнт не очікував? Що здивувало його або тебе в цьому кейсі.", "proof": "", "tag": "несподіване", "type": "text", "n": 10}, {"block": "Кейс", "rubric": "Що вийшло", "q": "Що ти тепер робиш інакше після цього кейсу?", "proof": "Одна конкретна річ.", "tag": "висновок", "type": "text", "n": 11}, {"block": "Кейс", "rubric": "Для сторінки", "q": "Чи можна показувати клієнта?", "proof": "", "tag": "дозвіл", "type": "single", "options": ["Так, з назвою і скрінами", "Так, але без назви", "Треба спитати в клієнта", "Ні"], "note": "Коментар, якщо хочеш", "n": 12}, {"block": "Кейс", "rubric": "Для сторінки", "q": "Де цей кейс зараз?", "proof": "", "tag": "статус", "type": "single", "options": ["Працюємо далі", "Закінчили", "Ще в процесі, цифри проміжні"], "note": "Коментар, якщо хочеш", "n": 13}, {"block": "Кейс", "rubric": "Для сторінки", "q": "Скріни: до/після, відгук, пости, які зайшли. Куди ти їх поклала?", "proof": "Посилання на папку або картку в Trello. Або напиши «скину в телеграм».", "tag": "скріни", "type": "text", "n": 14}];
+const N = Q.length;
+const KEY = "keisy.v1";
+const SHEET = "Кейси";
+const SKIP = "(пропущено)";
+const $ = id => document.getElementById(id);
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// ---------- state: один власник, багато кейсів ----------
+let S = {owner:"", ownerId:"", curId:"", cases:{}};
+let C = null;   // поточний кейс
+const blankCase = name => ({name:name||"", answers:{}, choices:{}, skipped:{}, cur:1, started:false, acked:{}, ackedState:"", ackedName:""});
+const normName = v => {
+  let k = String(v||"").trim().toLowerCase().replace(/^https?:\/\/(www\.)?instagram\.com\//, "").replace(/^@+/, "").replace(/[\/?#].*$/, "").replace(/\s+/g, "");
+  const digits = k.replace(/\D/g, "");
+  if(digits.length >= 9 && !/[a-zа-яіїєґ._]/i.test(k)) k = digits.replace(/^(380|0)/, "380");   // телефон: лишаємо цифри, 0XX → 380XX
+  return k;
+};
+const normCase = v => String(v||"").trim().toLowerCase().replace(/\s+/g, " ");
+const caseId = name => S.ownerId + "|" + normCase(name);
+function load(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    if(raw){ const o = JSON.parse(raw); if(o && typeof o==="object"){ S = Object.assign(S, o); S.cases = S.cases || {}; } }
+  }catch(e){}
+}
+let saveT = null;
+function save(){ clearTimeout(saveT); saveT = setTimeout(()=>{ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }, 200); }
+const byN = {}; Q.forEach(q => byN[q.n] = q);
+const noteOf = (n, c) => (((c||C).answers[n])||"").trim();
+function hasChoice(n, c){ const ch = (c||C).choices[n]; return !!(ch && ch.sel && ch.sel.length); }
+// відповідь словами — так вона йде в таблицю і в експорт
+function answerText(n, c){
+  c = c || C; const q = byN[n], ch = c.choices[n] || {}, note = noteOf(n, c);
+  if(!q || q.type==="text") return note;
+  const main = (ch.sel||[]).map(i => q.options[i]).join("; ");
+  return main && note ? main + " — " + note : (main || note);
+}
+const answered = (n, c) => answerText(n, c).trim().length > 0;
+const doneCount = c => Q.filter(q => answered(q.n, c)).length;
+
+// ---------- ui helpers ----------
+function progress(){
+  const d = C ? doneCount(C) : 0;
+  $("counter").textContent = `${d} / ${N}`;
+  $("pfill").style.width = (100*d/N) + "%";
+  $("pbar").setAttribute("aria-valuenow", d);
+}
+function autogrow(t){ t.style.height = "auto"; t.style.height = Math.max(140, t.scrollHeight + 2) + "px"; }
+let snackT = null;
+function snack(msg){ const s = $("snack"); s.textContent = msg; s.classList.add("show"); clearTimeout(snackT); snackT = setTimeout(()=>s.classList.remove("show"), 3000); }
+function esc(t){ return String(t).replace(/[&<>"]/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch])); }
+document.addEventListener("pointerdown", e => {
+  const el = e.target.closest(".btn,.fab,.icon-btn,.case"); if(!el || el.disabled || reduced) return;
+  const r = el.getBoundingClientRect(), d = Math.max(r.width, r.height) * 2;
+  const s = document.createElement("span"); s.className = "ripple";
+  s.style.cssText = `width:${d}px;height:${d}px;left:${e.clientX - r.left - d/2}px;top:${e.clientY - r.top - d/2}px`;
+  el.appendChild(s); s.addEventListener("animationend", () => s.remove());
+});
+function confetti(){
+  if(reduced) return;
+  const box = document.createElement("div"); box.className = "confetti";
+  const colors = ["#F28DB8","#86B0FF","#B88CF0","#FFD9E3","#D7E6FF"];
+  for(let i = 0; i < 36; i++){
+    const p = document.createElement("i");
+    p.style.cssText = `left:${Math.random()*100}vw;background:${colors[i%colors.length]};animation-delay:${Math.random()*.6}s;animation-duration:${1.3+Math.random()*.9}s;transform:rotate(${Math.random()*360}deg)`;
+    box.appendChild(p);
+  }
+  document.body.appendChild(box); setTimeout(()=>box.remove(), 3000);
+}
+
+// ---------- screens ----------
+let dir = 1;
+function show(name){
+  stopRec();
+  ["intro","q","done"].forEach(v => { $("s-"+v).hidden = v!==name; });
+  $("bottombar").hidden = name!=="q";
+  if(name==="intro") renderIntro();
+  if(name==="q") renderQ();
+  if(name==="done"){ renderDone(); confetti(); verify(); }
+  toTop();
+}
+function toTop(){ if(document.activeElement && document.activeElement.blur) document.activeElement.blur(); if(window.scrollY > 0) window.scrollTo({top:0, behavior: reduced ? "auto" : "smooth"}); }
+
+// ---------- intro: власник + список кейсів ----------
+let remoteList = null, listT = null, listReq = 0;
+function introReady(){ $("start").disabled = !(S.ownerId && $("cname").value.trim()); }
+function renderIntro(){
+  $("owner").value = S.owner || "";
+  $("cname").value = "";
+  introReady();
+  renderCases();
+  if(S.ownerId) fetchList();
+}
+function localCases(){
+  const pre = S.ownerId + "|";
+  return Object.keys(S.cases).filter(id => id.startsWith(pre)).map(id => ({id, name:S.cases[id].name, done:doneCount(S.cases[id]), local:true}));
+}
+function renderCases(){
+  const box = $("cases-box"), host = $("cases"), msg = $("cases-msg");
+  if(!S.ownerId){ box.hidden = true; return; }
+  const items = {}; localCases().forEach(c => items[c.id] = c);
+  (remoteList||[]).forEach(r => { if(!items[r.id]) items[r.id] = {id:r.id, name:r.name, done:r.done, remote:true}; else items[r.id].remote = true; });
+  const list = Object.values(items).filter(c => c.name);
+  box.hidden = false;
+  host.innerHTML = "";
+  list.sort((a,b) => a.name.localeCompare(b.name, "uk"));
+  list.forEach(c => {
+    const b = document.createElement("button"); b.type = "button"; b.className = "case" + (c.done>=N ? " done" : "");
+    b.innerHTML = `<span class="nm">${esc(c.name)}</span><span class="pct">${c.done} з ${N}</span>`;
+    b.onclick = () => openCase(c.name, c.id, b);
+    host.appendChild(b);
+  });
+  if(!list.length) msg.textContent = remoteList === null ? "Шукаю твої кейси в таблиці…" : "Поки жодного кейсу. Почни перший — назву впиши нижче.";
+  else msg.textContent = remoteList === null ? "Звіряю зі списком у таблиці…" : "Натисни на кейс, щоб продовжити або дописати.";
+}
+function fetchList(){
+  if(!SHEET_URL || !S.ownerId) return;
+  const my = ++listReq; remoteList = null;
+  clearTimeout(listT); listT = setTimeout(async () => {
+    listT = null;
+    try{
+      const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 9000);
+      const r = await fetch(SHEET_URL + "?sheet=" + encodeURIComponent(SHEET) + "&list=1&owner=" + encodeURIComponent(S.ownerId), {signal:ctrl.signal});
+      clearTimeout(t);
+      const d = await r.json();
+      if(my !== listReq) return;
+      remoteList = (d && d.ok && Array.isArray(d.rows)) ? d.rows.map(x => ({id:String(x.id), name:String((x.fields && x.fields[1]) || ""), done:+x.done || 0})) : [];
+      renderCases();
+    }catch(e){
+      if(my !== listReq) return;
+      remoteList = []; renderCases();
+      const msg = $("cases-msg"); msg.textContent = (localCases().length ? "Показую те, що є на цьому телефоні. " : "") + "До таблиці не достукалась — перевір інтернет і спробуй ще раз.";
+    }
+  }, 350);
+}
+$("owner").addEventListener("input", e => {
+  S.owner = e.target.value.trim(); S.ownerId = normName(S.owner); save(); introReady();
+  if(S.ownerId){ remoteList = null; renderCases(); fetchList(); } else renderCases();
+});
+$("cname").addEventListener("input", introReady);
+$("cname").addEventListener("keydown", e => { if(e.key==="Enter"){ e.preventDefault(); if(!$("start").disabled) $("start").click(); } });
+$("start").onclick = () => openCase($("cname").value.trim(), null, $("start"));
+
+async function openCase(name, id, btn){
+  if(!S.ownerId) return;
+  id = id || caseId(name);
+  if(!S.cases[id]) S.cases[id] = blankCase(name);
+  C = S.cases[id]; S.curId = id; if(name) C.name = name; save();
+  const old = btn ? btn.innerHTML : ""; if(btn){ btn.disabled = true; btn.textContent = "Шукаю збережене…"; }
+  const merged = await loadRemote();
+  if(btn){ btn.disabled = false; btn.innerHTML = old; }
+  C.started = true; dir = 1;
+  const first = Q.find(q => !answered(q.n) && !C.skipped[q.n]);
+  C.cur = first ? first.n : 1;
+  progress(); show("q");
+  if(merged > 0) snack(`Знайшла в таблиці: ${merged}. Продовжуємо.`);
+}
+
+// ---------- question ----------
+function renderQ(){
+  const q = Q[C.cur-1];
+  const card = $("card");
+  card.classList.remove("enter-next","enter-prev"); void card.offsetWidth; card.classList.add(dir < 0 ? "enter-prev" : "enter-next");
+  $("q-pos").textContent = `${C.name} · ${q.n} з ${N}`;
+  $("q-num").textContent = q.n;
+  $("q-text").textContent = q.q;
+  $("q-proof").hidden = !q.proof;
+  $("q-proof-text").textContent = q.proof || "";
+  renderOpts(q);
+  renderSavedMark();
+  const ta = $("ans"); ta.value = C.answers[q.n] || ""; autogrow(ta);
+  const last = C.cur===N;
+  $("next-label").textContent = last ? "Готово" : "Далі";
+  $("next-ico").hidden = last;
+  save();
+}
+function choice(n){ return C.choices[n] || (C.choices[n] = {}); }
+function changed(){ save(); progress(); queueSync(); }
+function optBtn(label, cls, on){ const b = document.createElement("button"); b.type = "button"; b.className = "opt " + cls + (on ? " on" : ""); b.innerHTML = '<span class="box"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span><span>' + esc(label) + '</span>'; return b; }
+function renderOpts(q){
+  const host = $("opts"), fld = $("ans-field");
+  host.innerHTML = ""; host.hidden = q.type==="text";
+  const isText = q.type==="text";
+  $("ans-label").textContent = isText ? "Відповідь" : (q.note || "Коментар, якщо хочеш");
+  fld.classList.toggle("note", !isText);
+  $("support").textContent = isText ? "Факт, цифра, дата. Або пропусти — повернешся пізніше." : "Можна надиктувати.";
+  if(isText) return;
+  const n = q.n, c = choice(n); c.sel = c.sel || [];
+  const wrap = document.createElement("div"); wrap.className = "opts";
+  q.options.forEach((label, i) => {
+    const b = optBtn(label, q.type==="multi" ? "multi" : "single", c.sel.includes(i));
+    b.onclick = () => {
+      if(q.type==="single") c.sel = c.sel.includes(i) ? [] : [i];
+      else { if(c.sel.includes(i)) c.sel = c.sel.filter(x => x!==i); else c.sel.push(i); }
+      if(c.sel.length) delete C.skipped[n];
+      changed(); renderOpts(q);
+    };
+    wrap.appendChild(b);
+  });
+  host.appendChild(wrap);
+}
+function go(delta){
+  stopRec(); if(dirty) sync();
+  dir = delta;
+  const j = C.cur + delta;
+  if(j < 1){ show("intro"); return; }
+  if(j > N){ show("done"); return; }
+  C.cur = j; renderQ(); toTop();
+}
+$("prev").onclick = () => go(-1);
+$("next").onclick = () => go(1);
+$("skip").onclick = () => { if(!answered(C.cur)) C.skipped[C.cur] = true; save(); queueSync(); go(1); };
+$("ans").addEventListener("input", e => {
+  if(recOn || rec){ base = e.target.value; finals = []; interim = ""; doneIdx = lastLen; }
+  C.answers[C.cur] = e.target.value; if(e.target.value.trim()) delete C.skipped[C.cur];
+  autogrow(e.target); save(); progress(); queueSync();
+});
+$("ans").addEventListener("keydown", e => { if((e.metaKey||e.ctrlKey) && e.key==="Enter"){ e.preventDefault(); go(1); } });
+
+// ---------- done ----------
+function renderDone(){
+  const d = doneCount(C);
+  $("st-done").textContent = d; $("st-left").textContent = N - d;
+  $("to-left").hidden = d===N;
+  $("done-title").textContent = d===N ? "Кейс зібрано повністю" : "Кейс збережено";
+}
+function exportText(){
+  let out = "Кейс: " + (C.name||"") + " (" + new Date().toLocaleDateString("uk-UA") + ")" + (S.owner ? " — " + S.owner : "") + "\n", lastR = "";
+  Q.forEach(q => {
+    if(q.rubric!==lastR){ out += "\n=== " + q.rubric + " ===\n"; lastR = q.rubric; }
+    const a = answerText(q.n).trim();
+    out += `\n${q.n}. ${q.q}\n— ${a || (C.skipped[q.n] ? SKIP : "(без відповіді)")}\n`;
+  });
+  return out;
+}
+$("copy").onclick = async () => {
+  const t = exportText();
+  try{ await navigator.clipboard.writeText(t); snack("Скопійовано. Встав у чат або повідомлення."); }
+  catch(e){ const o = $("out"); o.hidden = false; o.value = t; o.style.height = "240px"; o.focus(); o.select(); snack("Виділено нижче — скопіюй вручну."); }
+};
+$("to-left").onclick = () => { const q = Q.find(q => !answered(q.n)); if(q){ C.cur = q.n; dir = 1; show("q"); } };
+$("reverify").onclick = () => verify();
+$("back-q").onclick = () => { C.cur = N; dir = -1; show("q"); };
+$("to-list").onclick = () => show("intro");
+
+// ---------- sync to the Google Sheet ----------
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbzojMbPU_LGRD6alW8oIovJPZK_046sJm_bVQySkK_wbG4T0tiPrw4ODeq6u1DUyD1YHQ/exec";
+let dirty = false, syncT = null, sentHeader = false, inflight = null, seq = 0, failures = 0;
+function setSaved(kind, t){ const el = $("saved-state"); el.className = "state " + kind; $("saved-text").textContent = t; }
+const sheetText = (n, c) => answerText(n, c).trim() || ((c||C).skipped[n] ? SKIP : "");
+function stateJSON(){ const st = {}; Q.forEach(q => { if(q.type!=="text" && hasChoice(q.n)) st[q.n] = {c:C.choices[q.n], t:noteOf(q.n)}; }); return JSON.stringify(st); }
+const nameKey = () => S.owner + "\n" + C.name;
+function pending(){   // тільки те, що змінилось після останнього підтвердження
+  const items = {}, clear = [];
+  Q.forEach(q => { const t = sheetText(q.n), was = C.acked[q.n] || ""; if(t && t !== was) items[q.n] = t; else if(!t && was) clear.push(q.n); });
+  return {items, clear};
+}
+function renderSavedMark(){
+  const el = $("q-saved"); if(!el) return;
+  const t = sheetText(C.cur);
+  if(!t){ el.textContent = ""; el.className = "qsaved"; return; }
+  if((C.acked[C.cur]||"") === t){ el.textContent = "✓ у таблиці"; el.className = "qsaved ok"; }
+  else { el.textContent = "зберігаю в таблицю…"; el.className = "qsaved wait"; }
+}
+function queueSync(){ dirty = true; setSaved("saving", "зберігаю…"); renderSavedMark(); clearTimeout(syncT); syncT = setTimeout(sync, 1500); }
+function payloadFor(p, st){
+  const body = {sheet:SHEET, id:S.curId, fields:[S.owner||"", C.name||""], labels:["хто","кейс"], total:N, seq:++seq, updated:new Date().toISOString(), answers:p.items, clear:p.clear};
+  if(st !== C.ackedState) body.state = st;
+  if(!sentHeader) body.questions = Q.map(q => ({n:q.n, q:q.q}));
+  return JSON.stringify(body);
+}
+function sync(){
+  if(!SHEET_URL || !C || !S.curId) return;
+  clearTimeout(syncT); syncT = null;
+  if(inflight){ dirty = true; return; }           // відправки йдуть по черзі
+  const c = C, id = S.curId;                      // кейс, для якого шлемо, навіть якщо людина вже перейшла в інший
+  const p = pending(), st = stateJSON();
+  const nothing = !Object.keys(p.items).length && !p.clear.length && st === c.ackedState && nameKey() === c.ackedName && sentHeader;
+  dirty = false;
+  if(nothing){ setSaved("saved", "усе в таблиці"); renderSavedMark(); return; }
+  const body = payloadFor(p, st);
+  inflight = (async () => {
+    try{
+      const r = await fetch(SHEET_URL, {method:"POST", mode:"cors", headers:{"Content-Type":"text/plain;charset=utf-8"}, body});
+      const j = await r.json();
+      if(!(j && j.ok)) throw new Error(j && j.error || "no ok");
+      Object.assign(c.acked, p.items); p.clear.forEach(n => delete c.acked[n]);
+      c.ackedState = st; c.ackedName = S.owner + "\n" + c.name; sentHeader = true; failures = 0; save();
+      if(C===c){ setSaved("saved", "збережено в таблиці"); renderSavedMark(); }
+    }catch(e){
+      failures++; dirty = true;
+      setSaved("offline", "не дійшло до таблиці — спробую ще раз");
+      clearTimeout(syncT); syncT = setTimeout(sync, Math.min(60000, 4000 * failures));
+    }finally{ inflight = null; if(dirty && failures === 0) sync(); }
+  })();
+}
+function flush(){  // остання спроба, коли сторінку закривають: маленька дельта
+  if(!SHEET_URL || !C || !S.curId) return;
+  const p = pending(); const st = stateJSON();
+  if(!Object.keys(p.items).length && !p.clear.length && st === C.ackedState) return;
+  try{ fetch(SHEET_URL, {method:"POST", mode:"no-cors", keepalive:true, headers:{"Content-Type":"text/plain;charset=utf-8"}, body:payloadFor(p, st)}); }catch(e){}
+}
+const getUrl = id => SHEET_URL + "?sheet=" + encodeURIComponent(SHEET) + "&id=" + encodeURIComponent(id);
+async function verify(){   // звірка: що реально лежить у таблиці
+  const box = $("verify"), txt = $("verify-text"); if(!box) return;
+  box.className = "verify"; txt.textContent = "Звіряю з таблицею…";
+  if(inflight){ try{ await inflight; }catch(e){} }
+  let d = null;
+  try{ const r = await fetch(getUrl(S.curId), {mode:"cors"}); d = await r.json(); }catch(e){}
+  const want = Q.map(q => q.n).filter(n => sheetText(n));
+  if(!d || !d.found){
+    if(!want.length){ box.className = "verify"; txt.textContent = "Поки нема що звіряти — відповідей ще немає."; return; }
+    box.className = "verify bad"; txt.textContent = "Не вдалося дочитатись до таблиці. Відповіді збережені тут, у браузері; надішлю, щойно з’явиться зв’язок."; dirty = true; clearTimeout(syncT); syncT = setTimeout(sync, 3000); return;
+  }
+  const missing = [];
+  want.forEach(n => { const remote = String(d.answers && d.answers[n] || "").trim(); if(remote === sheetText(n)) C.acked[n] = remote; else missing.push(n); });
+  save();
+  if(!missing.length){ box.className = "verify ok"; txt.textContent = `Усе на місці: ${want.length} ${want.length===1 ? "відповідь" : want.length < 5 ? "відповіді" : "відповідей"} у таблиці, слово в слово.`; return; }
+  box.className = "verify"; txt.textContent = `${missing.length} ${missing.length===1 ? "відповідь ще не дійшла" : "відповіді ще не дійшли"} (№ ${missing.join(", ")}). Надсилаю ще раз…`;
+  missing.forEach(n => delete C.acked[n]); dirty = true; sync();
+  const t0 = Date.now(); while((inflight || dirty) && Date.now() - t0 < 20000){ await new Promise(r => setTimeout(r, 400)); }
+  let d2 = null; try{ const r = await fetch(getUrl(S.curId), {mode:"cors"}); d2 = await r.json(); }catch(e){}
+  const still = want.filter(n => String(d2 && d2.answers && d2.answers[n] || "").trim() !== sheetText(n));
+  if(!still.length){ box.className = "verify ok"; txt.textContent = `Тепер усе на місці: ${want.length} у таблиці.`; }
+  else { box.className = "verify bad"; txt.textContent = `Не дійшли: № ${still.join(", ")}. Вони збережені тут — натисни «Звірити ще раз» за хвилину або скопіюй кейс текстом.`; }
+}
+async function loadRemote(){   // підтягуємо цей кейс з таблиці (інший пристрій, інший браузер)
+  if(!SHEET_URL || !S.curId) return 0;
+  let merged = 0;
+  try{
+    const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 9000);
+    const r = await fetch(getUrl(S.curId), {signal:ctrl.signal});
+    clearTimeout(t);
+    const d = await r.json();
+    if(d && d.found && d.answers){
+      let st = {}; try{ st = d.state ? JSON.parse(d.state) : {}; }catch(e){}
+      Object.keys(d.answers).forEach(k => {
+        const n = +k, v = String(d.answers[k]||"").trim(), q = byN[n];
+        if(!q || !v || answered(n)) return;                 // те, що вже є тут, важливіше
+        if(v === SKIP){ if(!C.skipped[n]){ C.skipped[n] = true; merged++; } return; }
+        if(q.type==="text"){ C.answers[n] = v; }
+        else if(st[n] && st[n].c){ C.choices[n] = st[n].c; if(st[n].t) C.answers[n] = st[n].t; }
+        else { C.answers[n] = v; }                           // вибір без стану — хоч текстом
+        delete C.skipped[n]; merged++; if(sheetText(n) === v) C.acked[n] = v;
+      });
+      if(!C.name && d.fields && d.fields[1]) C.name = String(d.fields[1]);
+      sentHeader = true; save(); progress();
+    }
+  }catch(e){ /* нема інтернету або таблиця мовчить — працюємо з тим, що є тут */ }
+  return merged;
+}
+
+// ---------- voice ----------
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent));
+const IDLE_MS = 120000;   // дві хвилини повної тиші — вимикаємо, щоб мікрофон не висів вічно
+let rec = null, recOn = false, recQ = 0, recC = null, base = "", finals = [], interim = "", doneIdx = 0, lastLen = 0, restartT = null, endT = null, idleT = null, startTries = 0;
+const join = (a, b) => a ? (b ? (/\s$/.test(a) ? a + b : a + " " + b) : a) : b;
+const MIC_PATH = '<path fill="currentColor" d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/>';
+const STOP_PATH = '<path fill="currentColor" d="M6 6h12v12H6z"/>';
+function hint(t){ $("mic-hint").textContent = t; }
+function micUI(on){ $("mic").classList.toggle("on", on); $("mic-label").textContent = on ? "Зупинити" : "Надиктувати"; $("mic-ico").innerHTML = on ? STOP_PATH : MIC_PATH; }
+function compose(){ return join(join(base, finals.join(" ")), interim); }
+function renderDictation(){
+  // пишемо в те питання того кейсу, для якого запис починався, навіть якщо людина вже перейшла далі
+  const text = compose(), c = recC || C; if(!c) return;
+  c.answers[recQ] = text; if(text.trim()) delete c.skipped[recQ];
+  if(C===c && C.cur===recQ){ const ta = $("ans"); ta.value = text; autogrow(ta); ta.scrollTop = ta.scrollHeight; }
+  save(); progress(); queueSync();
+}
+function commitSession(){ base = compose(); finals = []; interim = ""; doneIdx = 0; lastLen = 0; }
+function readResults(e){
+  const res = e.results, len = res.length;
+  if(len < doneIdx) doneIdx = 0;                    // браузер почав новий список — старе вже в base
+  lastLen = len;
+  let gotFinal = false; const inter = [];
+  for(let i = Math.max(e.resultIndex, 0); i < len; i++){
+    const r = res[i]; const t = (r && r[0] && r[0].transcript || "").trim();
+    if(r && r.isFinal){
+      if(i < doneIdx) continue;                     // Android надсилає історію ще раз — пропускаємо вже записане
+      if(t){ const prev = finals[finals.length-1]; if(prev && t.startsWith(prev)) finals[finals.length-1] = t; else if(prev !== t) finals.push(t); }
+      doneIdx = i + 1; gotFinal = true;
+    } else if(t){
+      const prev = inter[inter.length-1];
+      if(prev && t.startsWith(prev)) inter[inter.length-1] = t; else inter.push(t);
+    }
+  }
+  if(gotFinal) interim = inter.join(" ");           // остаточний текст уже є, проміжний лише те, що говориться зараз
+  else if(inter.length) interim = inter.join(" ");  // порожню подію не вважаємо «текст зник»
+}
+function armIdle(){ clearTimeout(idleT); idleT = setTimeout(() => { if(recOn){ stopRec(); hint("Мікрофон вимкнувся після двох хвилин тиші. Натисни ще раз, коли будеш готова."); } }, IDLE_MS); }
+function newSession(){
+  let r;
+  try{ r = new SR(); }catch(e){ return false; }
+  rec = r;
+  r.lang = "uk-UA"; r.interimResults = true; r.maxAlternatives = 1; r.continuous = true;
+  r.onresult = e => { if(rec!==r) return; startTries = 0; readResults(e); renderDictation(); armIdle(); };
+  r.onerror = e => {
+    if(rec!==r) return;
+    if(e.error==="not-allowed" || e.error==="service-not-allowed"){ recOn = false; micUI(false); hint("Доступ до мікрофона закритий. Дозволь його в налаштуваннях сайту або натисни мікрофон на клавіатурі."); }
+    else if(e.error==="audio-capture"){ recOn = false; micUI(false); hint("Мікрофон не знайдено. Перевір, чи він не зайнятий іншим застосунком."); }
+    else if(e.error==="network"){ recOn = false; micUI(false); hint("Розпізнавання не з’єдналось. Спробуй ще раз або мікрофон на клавіатурі."); }
+    // no-speech / aborted: нормальні паузи, далі спрацює onend і запис продовжиться
+  };
+  r.onend = () => {
+    if(rec!==r) return;
+    commitSession(); renderDictation();
+    clearTimeout(endT);
+    if(recOn){
+      // браузер закриває сесію після паузи — одразу відкриваємо нову, щоб нічого не загубити
+      if(!newSession()){ startTries++; clearTimeout(restartT); restartT = setTimeout(() => { if(recOn && rec===null && !newSession()){ recOn = false; micUI(false); hint("Запис перервався. Натисни «Надиктувати», щоб продовжити."); } }, 300); }
+    } else rec = null;
+  };
+  try{ r.start(); }catch(e){ rec = null; return false; }
+  return true;
+}
+function startRec(){
+  if(rec){ commitSession(); renderDictation(); clearTimeout(endT); rec = null; }   // попередній запис ще не закрився — доклеюємо його хвіст
+  recQ = C.cur; recC = C; base = $("ans").value; finals = []; interim = ""; doneIdx = 0; lastLen = 0; startTries = 0;
+  recOn = true;
+  if(!newSession()){ recOn = false; hint("Не вдалося увімкнути мікрофон. Натисни мікрофон на клавіатурі."); return; }
+  micUI(true); hint("Слухаю. Говори, текст з’являється в полі. Паузи — не страшно."); armIdle();
+}
+function stopRec(){
+  if(!recOn && !rec) return;
+  recOn = false; clearTimeout(restartT); clearTimeout(idleT);
+  micUI(false); hint(isMobile ? "або мікрофон на клавіатурі" : "");
+  const r = rec;
+  if(r){
+    try{ r.stop(); }catch(e){}                      // обробники лишаються: остання фраза часто приходить уже після stop()
+    clearTimeout(endT);
+    endT = setTimeout(() => { if(rec===r){ commitSession(); renderDictation(); rec = null; } }, 2500);
+  }
+}
+if(!SR){
+  $("mic").hidden = true;
+  hint(isMobile ? "Диктування: натисни мікрофон на клавіатурі телефону." : "Цей браузер не вміє розпізнавати мову — відкрий сторінку в Chrome або Safari.");
+} else {
+  hint(isMobile ? "або мікрофон на клавіатурі" : "");
+  $("mic").onclick = () => recOn ? stopRec() : startRec();
+}
+document.addEventListener("visibilitychange", () => { if(document.hidden){ stopRec(); flush(); } });
+
+// ---------- boot ----------
+load();
+if(S.curId && S.cases[S.curId]) C = S.cases[S.curId];
+progress();
+window.addEventListener("pagehide", flush);
+show(C && C.started && S.ownerId && S.curId.startsWith(S.ownerId + "|") ? "q" : "intro");
+</script>
+
+</body>
+</html>
